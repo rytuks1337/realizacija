@@ -1,0 +1,46 @@
+version: '3'
+services:
+  postgresql:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    volumes:
+      # - db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - db_network
+    ports:
+      - "5432:5432"
+  nodejs_server:
+    build: 
+      context: ./nodejsServer
+      dockerfile: Dockerfile
+    #environment:
+      #- NODE_ENV=production
+    volumes:
+      - ./nodejsServer:/usr/src/
+    networks:
+      - link_balancer
+      - db_network
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgresql
+  # load_balancer:
+  #   build: 
+  #     context: ./nginxServ
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginxServ/:/etc/nginx
+  #   networks:
+  #     - link_balancer
+
+networks:
+ link_balancer: #used by nodejs
+ db_network: #used by database
+
+volumes:
+ db_data: #Database data
