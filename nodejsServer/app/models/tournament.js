@@ -1,38 +1,12 @@
-class Tournament {
-    constructor(name, description, date, arm_start) {
-        this.name = null;
-        this.description = null;
+const pool = require('../db');
 
-        this.players = [];
-        this.matches = [];
-        this.referee = [];
-    }
+const createTournament = async (tournament) => {
+  const { pavadinimas, data, pradzia, pabaiga, aprasas, organizatoriusVartotojo_ID, var_pogrupiai_ID } = tournament;
+  const result = await pool.query(
+    'INSERT INTO Varzybos (pavadinimas, data, pradzia, pabaiga, aprasas, organizatoriusVartotojo_ID, var_pogrupiai_ID) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+    [pavadinimas, data, pradzia, pabaiga, aprasas, organizatoriusVartotojo_ID, var_pogrupiai_ID]
+  );
+  return result.rows[0];
+};
 
-    addPlayer(player) {
-        this.players.push(player);
-    }
-
-    createMatch(player1, player2, referee) {
-        this.matches.push({ player1, player2, referee, winner: null });
-    }
-
-    updateMatch(reason, matchIndex, player) {
-        switch(reason){
-            case "Winner":
-                if (this.matches[matchIndex].winner === null) {
-                    this.matches[matchIndex].winner = winner;
-                } else {
-                    throw new Error(`Match ${matchIndex} already has a winner.`);
-                }
-                break;
-            case "Straps":
-                
-        }
-       
-    }
-    updateMatchForce(){
-
-    }
-}
-  
-module.exports = Tournament;
+module.exports = { createTournament };
