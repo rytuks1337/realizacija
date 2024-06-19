@@ -1,10 +1,10 @@
 const pool = require('../config/db.js');
 
 const createUser = async (user) => {
-  const { vardas, pavarde, amzius, el_pastas, slaptazodis, role } = user;
+  const { vardas, pavarde, amzius, el_pastas, slaptazodis } = user;
   const result = await pool.query(
-    'INSERT INTO Vartotojas (vardas, pavarde, amzius, el_pastas, slaptazodis, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-    [vardas, pavarde, amzius, el_pastas, slaptazodis, role]
+    'INSERT INTO Vartotojas (vardas, pavarde, amzius, el_pastas, slaptazodis) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [vardas, pavarde, amzius, el_pastas, slaptazodis]
   );
   return result.rows[0];
 };

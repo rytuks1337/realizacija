@@ -1,6 +1,8 @@
 const { validationResult } = require('express-validator');
 const { createPlayer } = require('../models/Player.js');
 
+
+
 const createP = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -14,6 +16,7 @@ const createP = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const getAllPlayers = async (req, res) => {
     const { tournamentId } = req.params;

@@ -16,6 +16,17 @@ const createMatch = async (req, res) => {
   }
 };
 
+const getAllMatches = async (req, res) => {
+  const result = await pool.query('SELECT * FROM Matches');
+  if (!result.isEmpty()) {
+    res.status(200).json(result);
+  } else{
+    res.status(404).json({message:'Empty'});
+  }
+  
+}
+
+
 const getMatchesByTournament = async (req, res) => {
   const { tournamentId } = req.params;
   try {
@@ -29,4 +40,4 @@ const getMatchesByTournament = async (req, res) => {
   }
 }; 
 
-module.exports = { createMatch, getMatchesByTournament };
+module.exports = { createMatch, getMatchesByTournament, getAllMatches };

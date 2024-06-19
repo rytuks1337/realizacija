@@ -13,7 +13,7 @@ const register = async (req, res) => {
   const { vardas, pavarde, amzius, el_pastas, slaptazodis } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(slaptazodis, 10);
-    const user = await createUser({ vardas, pavarde, amzius, el_pastas, slaptazodis: hashedPassword, null });
+    const user = await createUser({ vardas, pavarde, amzius, el_pastas, slaptazodis: hashedPassword });
     res.status(201).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
