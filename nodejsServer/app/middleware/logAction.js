@@ -1,4 +1,4 @@
-const pool = require('../db');
+const pool = require('../config/db.js');
 
 const logAction = async (req, res, next) => {
   const { method, url, body } = req;

@@ -1,13 +1,17 @@
 const { body } = require('express-validator');
 
-const tournamentValidation = [
-  body('pavadinimas').notEmpty().withMessage('Tournament name is required'),
-  body('data').isDate().withMessage('Date is invalid'),
-  body('pradzia').isString().withMessage('Start time is required'),
-  body('pabaiga').isString().withMessage('End time is required'),
-  body('aprasas').notEmpty().withMessage('Description is required'),
-  body('organizatoriusVartotojo_ID').isInt().withMessage('Organizer ID is invalid'),
-  body('var_pogrupiai_ID').isInt().withMessage('Group ID is invalid')
+const matchValidation = [
+  body('dalyvio_ID').isInt().withMessage('Participant 1 ID is invalid'),
+  body('dalyvio2_ID').isInt().withMessage('Participant 2 ID is invalid'),
+  body('laimetojoDalyvio_ID').optional().isInt().withMessage('Winner ID is invalid'),
+  body('teisejasDalyvio_ID').isInt().withMessage('Referee ID is invalid'),
+  body('varzybu_ID').isInt().withMessage('Tournament ID is invalid'),
+  body('pogrupis_ID').isInt().withMessage('Group ID is invalid')
 ];
 
-module.exports = { tournamentValidation };
+const logActionValidation = [
+  body('matchID').isInt().withMessage('Match ID is invalid'),
+  body('action').notEmpty().withMessage('Action is required')
+];
+
+module.exports = { matchValidation, logActionValidation };

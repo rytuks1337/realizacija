@@ -1,10 +1,9 @@
 const express = require('express');
-const { create, logAction } = require('../controllers/matchController');
-const { matchValidation, logActionValidation } = require('../validators/matchValidator');
-const { authenticateToken, authorizeRole } = require('../middleware/auth');
+const { createMatch } = require('../controllers/matchController.js');
+const { matchValidation} = require('../validators/matchValidator.js');
+const { authenticateToken, authorizeRole } = require('../middleware/auth.js');
 const router = express.Router();
 
-router.post('/', authenticateToken, authorizeRole('Referee'), matchValidation, create);
-router.post('/log', authenticateToken, authorizeRole('Referee'), logActionValidation, logAction);
+router.post('/', authenticateToken, authorizeRole('Referee'), matchValidation, createMatch);
 
 module.exports = router;

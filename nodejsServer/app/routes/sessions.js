@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/db');
-const authenticateToken = require('../middleware/auth');
+const pool = require('../config/db.js');
+const { authenticateToken } = require('../middleware/auth.js');
 const { Console } = require('winston/lib/winston/transports');
 
 // Create a new session

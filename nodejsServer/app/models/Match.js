@@ -1,4 +1,4 @@
-const pool = require('../db');
+const pool = require('../config/db.js');
 
 const createMatch = async (match) => {
   const { tournament_id, round, match_num, player1_id, player2_id, winner_id, loser_id, status } = match;

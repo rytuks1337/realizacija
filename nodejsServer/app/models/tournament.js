@@ -1,4 +1,4 @@
-const pool = require('../db');
+const pool = require('../config/db.js');
 
 const createTournament = async (tournament) => {
   const { pavadinimas, data, pradzia, pabaiga, aprasas, organizatoriusVartotojo_ID, var_pogrupiai_ID } = tournament;
@@ -9,4 +9,6 @@ const createTournament = async (tournament) => {
   return result.rows[0];
 };
 
-module.exports = { createTournament };
+
+
+module.exports = { createTournament};

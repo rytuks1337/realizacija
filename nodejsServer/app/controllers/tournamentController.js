@@ -1,9 +1,11 @@
 const { validationResult } = require('express-validator');
-const { createTournament, getTournamentPlayers } = require('../models/Tournament');
-const { createMatch, getMatchesByTournament } = require('../models/Match');
-const { shuffle } = require('../utils/shuffle');
+const { createTournament } = require('../models/Tournament.js');
+const { getAllPlayers } = require('./playerController.js')
+const { getMatchesByTournament } = require('./matchController.js');
+const { createMatch } = require('./matchController.js');
+const { shuffle } = require('../utils/shuffle.js');
 
-const create = async (req, res) => {
+const createT = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -24,7 +26,7 @@ const generateMatches = async (req, res) => {
   const { tournament_id } = req.params;
 
   try {
-    const players = await getTournamentPlayers(tournament_id);
+    const players = await getAllPlayers(tournament_id);
     const shuffledPlayers = shuffle(players);
 
     // Double elimination logic
@@ -62,4 +64,4 @@ const getTournamentTable = async (req, res) => {
   }
 };
 
-module.exports = { create, generateMatches, getTournamentTable };
+module.exports = { createT, generateMatches, getTournamentTable };

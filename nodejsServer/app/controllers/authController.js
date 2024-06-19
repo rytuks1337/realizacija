@@ -1,7 +1,7 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
-const { createUser, findUserByEmail } = require('../models/User');
+const { createUser, findUserByEmail } = require('../models/User.js');
 require('dotenv').config();
 
 const register = async (req, res) => {
@@ -10,10 +10,10 @@ const register = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { vardas, pavarde, amzius, el_pastas, slaptazodis, role } = req.body;
+  const { vardas, pavarde, amzius, el_pastas, slaptazodis } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(slaptazodis, 10);
-    const user = await createUser({ vardas, pavarde, amzius, el_pastas, slaptazodis: hashedPassword, role });
+    const user = await createUser({ vardas, pavarde, amzius, el_pastas, slaptazodis: hashedPassword, null });
     res.status(201).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });

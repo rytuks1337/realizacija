@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 
 const playerValidation = [
   body('vardas').notEmpty().withMessage('Name is required'),
@@ -7,5 +7,12 @@ const playerValidation = [
   body('el_pastas').isEmail().withMessage('Email is invalid'),
   body('tournament_ID').isInt().withMessage('Tournament ID is invalid')
 ];
+const addPlayerValidation = [
+  param('tournamentId')
+      .isInt().withMessage('Tournament ID must be an integer'),
+  body('playerId')
+      .isInt().withMessage('Player ID must be an integer')
+];
 
-module.exports = { playerValidation };
+module.exports = { playerValidation, addPlayerValidation };
+
