@@ -9,6 +9,8 @@ services:
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - db_network
+    ports:
+      - "5432:5432"
   nodejs_server:
     build: 
       context: ./nodejsServer
@@ -38,6 +40,7 @@ services:
 
 networks:
  link_balancer: #used by nodejs
+  driver: bridge
  db_network: #used by database
 
 volumes:

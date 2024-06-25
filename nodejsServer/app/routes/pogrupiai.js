@@ -5,14 +5,12 @@ const pogrupis = require('../models/Pogrupis.js');
 const {authenticateToken, authorizeRole} = require('../middleware/auth.js');
 
 
-// GET all pogrupiai
-router.get('/pogrupiai', pogrupiaiController.getAllPogrupiai);
 
 // GET pogrupiai by ID
 router.get('/pogrupiai/:id', pogrupis.getPogrupiaiById);
 
 // POST create new pogrupiai
-router.post('/pogrupiai', authenticateToken, authorizeRole('Organizer'), pogrupis.addPogrupiai);
+router.post('/pogrupiai', authenticateToken, pogrupis.addPogrupi); //, authorizeRole('Organizer')
 
 // PUT update pogrupiai
 router.put('/pogrupiai/:id', authenticateToken, authorizeRole('Organizer'), pogrupis.updatePogrupiai);

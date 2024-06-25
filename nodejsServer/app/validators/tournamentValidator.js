@@ -1,15 +1,15 @@
 const { body, param } = require('express-validator');
 
 const createTournamentValidation = [
-    body('name')
-        .isString().withMessage('Tournament name must be a string')
-        .notEmpty().withMessage('Tournament name is required'),
-    body('date')
-        .isISO8601().withMessage('Invalid date format')
-        .notEmpty().withMessage('Date is required'),
-    body('description')
+    body('pavadinimas')
+        .isString().withMessage('Pavadinimas turi būti teksto kintamasis.')
+        .notEmpty().withMessage('Kintamasis privalo būti netuščias.'),
+    body('data')
+        .isISO8601().withMessage('Nevalidus laiko formatas')
+        .notEmpty().withMessage('Privalo būti nustatyta data'),
+    body('aprasas')
         .optional()
-        .isString().withMessage('Description must be a string')
+        .isString().withMessage('Aprašas privalo būti teksto kintamasis'),
 ];
 
 module.exports = {createTournamentValidation}

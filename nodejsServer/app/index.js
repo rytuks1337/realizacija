@@ -5,6 +5,7 @@ const authRoutes = require('./routes/auth.js');
 const matchRoutes = require('./routes/match.js');
 const playerRoutes = require('./routes/player.js');
 const refRoutes = require('./routes/referee.js');
+const userRoutes = require('./routes/users.js')
 const sessionRoutes = require('./routes/sessions.js');
 const pogrupRoutes = require('./routes/pogrupiai.js')
 const logAction = require('./middleware/logAction.js')
@@ -14,7 +15,9 @@ app.use(express.json());
 app.use(logAction);
 
 
-app.use('/api/users', authRoutes);
+app.use('/api/auth', authRoutes); //finished? rolelogic
+app.use('/api/user', userRoutes); //getUser
+
 app.use('/api/tournament', tournamentRoutes);
 app.use('/api/match', matchRoutes);
 app.use('/api/player', playerRoutes);
