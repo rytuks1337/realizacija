@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const {  addPogrupi, addPogrupiai_sar, updatePogrupiai, deletePogrupiai } = require('../models/Pogrupis.js');
+const {  addPogrupi, addPogrupiai_sar, updatePogrupiai, deletePogrupiai } = require('../models/groupModel.js');
 const pool = require('../config/db.js');
 
 

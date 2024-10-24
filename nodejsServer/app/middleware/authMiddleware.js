@@ -1,15 +1,15 @@
-const jwt = require('jsonwebtoken');
-const pool = require('../config/db.js');
+import jwt from 'jsonwebtoken';
+
 
 const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-  if (token == null) return res.sendStatus(401);
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    const token = req.headers['authorization'];
+    if (token == null) return res.sendStatus(401);
+    console.log(1);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user.id;
     next();
-  });
+    });
 };
 
 
@@ -42,4 +42,4 @@ const authorizeRole = (requiredRole) => {
     };
 };
 
-module.exports = {authenticateToken, authorizeRole};
+export {authenticateToken, authorizeRole};

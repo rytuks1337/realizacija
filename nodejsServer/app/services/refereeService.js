@@ -1,6 +1,6 @@
 const pool = require('../config/db.js');
 
-const createRefere = async (player) => {
+const createReferee = async (player) => {
   const { vardas, pavarde, amzius, el_pastas, tournament_ID } = player;
   const result = await pool.query(
     'INSERT INTO Zmones (vardas, pavarde, amzius, el_pastas, varzybos_ID, vartotojo_tipas) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
@@ -9,4 +9,4 @@ const createRefere = async (player) => {
   return result.rows[0];
 };
 
-module.exports = { createRefere };
+module.exports = { createReferee };

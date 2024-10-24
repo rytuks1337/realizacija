@@ -1,0 +1,46 @@
+1. API
+2. Database
+3 API <-> Database
+4. Client <- API
+5. Client -> API
+6. Middleware
+7. client beutification
+
+
+1. Response from APi needs to be more concice, have a template of {data:{}}
+Implementations:
+Details of tournament.
+login. ok
+Register (enail pass, then profile) 2.
+Matches view.
+Selected match view.
+Refferee management (1 for current, 1 for recent).
+Player view (and own management) 2, 1 - players.
+Player register - Qr code generation.
+Add tournament (1 to input details(this can also be edit), add pogrupiai, generate and start).
+declare states for the tournament.
+Organizer permission handler (give referee).
+
+Filter tournaments by city.
+
+
+maximum of 128, then 50 dollars for 4096
+Has online participant registracion
+No player details logic
+multiple elimination methods, acts in stages, different stages can have different elimination rules
+
+
+
+Lytis
+
+•	Varžybų sudarymas.
+•	Registracija į varžybas.
+•	Varžybų eigos atvaizdavimas.
+•	Ataskaitų rengimas organizatoriams.
+•	Varžybų duomenų saugojimas.
+•	Lenkimo sesijos valdymas teisėjams
+•	Automatinis varžybų prisitaikymas prie diskvalifikavimų ir dalyvių neatvykimų.
+•	Varžybų duomenų valdymas.
+•	Autentifikacija, autorizacija.
+
+

@@ -1,5 +1,5 @@
-const { validationResult } = require('express-validator');
-const { createTournament } = require('../models/Tournament.js');
+import { validationResult } from 'express-validator';
+import { createTournament } from '../models/tournamentModel.js';
 const pool = require('../config/db.js');
 
 const createMatch = async (req, res) => {

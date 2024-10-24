@@ -1,34 +1,48 @@
 -- Define ENUM type
 CREATE TYPE vartotojo_tipas AS ENUM ('Judge', 'Participant', 'Organizer');
 CREATE TYPE prazangos_tipas AS ENUM ('Elbow', 'Hand', 'FStart', 'ISlip');
-CREATE TYPE ranka AS ENUM ('K', 'D');
-CREATE TYPE lytis AS ENUM ('V', 'M');
+CREATE TYPE ranka_tipas AS ENUM ('K', 'D');
+CREATE TYPE lytis_tipas AS ENUM ('V', 'M');
 
--- Create table: Vartotojas
-CREATE TABLE Vartotojas (
+
+-- Create table: "Vartotojas"
+CREATE TABLE "Vartotojas" (
     ID SERIAL PRIMARY KEY,
     vardas VARCHAR(50),
     pavarde VARCHAR(50),
     amzius INT,
     el_pastas VARCHAR(50) UNIQUE,
     slaptazodis VARCHAR(70),
-    lytis lytis
+    lytis lytis_tipas,
+    "createdAt" TIMESTAMP,
+    "updatedAt" TIMESTAMP
 );
 
--- Create table: Pogrupis
-CREATE TABLE Pogrupis (
+-- Create table: "VartotojoUUID"
+CREATE TABLE "VartotojoUUID" (
+    ID SERIAL PRIMARY KEY,
+    "vartotojo_ID" INT,
+    "UUID" VARCHAR(36),
+    FOREIGN KEY ("vartotojo_ID") REFERENCES "Vartotojas"(ID),
+    "createdAt" TIMESTAMP,
+    "updatedAt" TIMESTAMP
+);
+
+-- Create table: "Pogrupis"
+CREATE TABLE "Pogrupis" (
     ID SERIAL PRIMARY KEY,
     pavadinimas VARCHAR(50),
     svoris INT,
     amzius_k INT,
-    lytis lytis,
-    ranka ranka,
-    vartotojo_ID INT,
-    varzybos_ID INT
+    lytis lytis_tipas,
+    ranka ranka_tipas,
+    "turnyro_ID" INT,
+    "createdAt" TIMESTAMP,
+    "updatedAt" TIMESTAMP
 );
 
--- Create table: Varzybos
-CREATE TABLE Varzybos (
+-- Create table: "Turnyras"
+CREATE TABLE "Turnyras" (
     ID SERIAL PRIMARY KEY,
     pavadinimas VARCHAR(100),
     data DATE,
@@ -37,110 +51,120 @@ CREATE TABLE Varzybos (
     pradzia TIME,
     pabaiga TIME,
     aprasas VARCHAR(4096),
-    organizatoriusVartotojo_ID INT
+    "organizatoriusVartotojo_ID" INT,
+    "createdAt" TIMESTAMP,
+    "updatedAt" TIMESTAMP
 );
 
--- Create table: Dalyvis_pogrupis
-CREATE TABLE Dalyvis_pogrupis (
+-- Create table: "Turnyro_Role"
+CREATE TABLE "Turnyro_Role" (
     ID SERIAL PRIMARY KEY,
-    pogrupis_ID INT,
-    varzybos_ID INT,
-    dalyvis_ID INT
-);
-
--- Create table: Zmones
-CREATE TABLE Zmones (
-    ID SERIAL PRIMARY KEY,
-    vartotojo_ID INT,
+    "vartotojo_ID" INT,
     vartotojo_tipas vartotojo_tipas,
-    varzybos_ID INT,
-    FOREIGN KEY (vartotojo_ID) REFERENCES Vartotojas(ID),
-    FOREIGN KEY (varzybos_ID) REFERENCES Varzybos(ID)
+    "turnyro_ID" INT,
+    FOREIGN KEY ("vartotojo_ID") REFERENCES "Vartotojas"(ID),
+    FOREIGN KEY ("turnyro_ID") REFERENCES "Turnyras"(ID),
+    "createdAt" TIMESTAMP,
+    "updatedAt" TIMESTAMP
 );
 
--- Create table: Lenkimo_sesija
-CREATE TABLE Lenkimo_sesija (
+-- Create table: "Lenkimo_sesija"
+CREATE TABLE "Lenkimo_sesija" (
     ID SERIAL PRIMARY KEY,
-    dalyvio_ID INT,
-    dalyvio2_ID INT,
-    laimetojoDalyvio_ID INT,
-    teisejasDalyvio_ID INT,
-    varzybu_ID INT,
-    pogrupis_ID VARCHAR(10)
+    "dalyvio_ID" INT,
+    "dalyvio2_ID" INT,
+    "laimetojoDalyvio_ID" INT,
+    "teisejas_ID" INT,
+    "teisejas2_ID" INT,
+    "varzybu_ID" INT,
+    "pogrupis_ID" INT,
+    "createdAt" TIMESTAMP,
+    "updatedAt" TIMESTAMP
 );
 
--- Create table: Prazangos
-CREATE TABLE Prazangos (
+-- Create table: "Prazangos"
+CREATE TABLE "Prazangos" (
     ID SERIAL PRIMARY KEY,
-    dalyvio_ID INT,
-    lenkimo_ID INT,
-    prazangos_tipas prazangos_tipas
+    "dalyvio_ID" INT,
+    "lenkimo_ID" INT,
+    prazangos_tipas prazangos_tipas,
+    "createdAt" TIMESTAMP,
+    "updatedAt" TIMESTAMP
 );
 
 -- Create table: Irasa_prisijungimai
-CREATE TABLE Irasa_prisijungimai (
+CREATE TABLE "Irasas_prisijungimai" (
     ID SERIAL PRIMARY KEY,
     cre_data TIMESTAMP,
-    duomenys VARCHAR(4096)
+    duomenys VARCHAR(4096),
+    "createdAt" TIMESTAMP,
+    "updatedAt" TIMESTAMP
 );
 
--- Create table: Irasa_varzybos
-CREATE TABLE Irasa_varzybos (
+-- Create table: Irasa_turnyro
+CREATE TABLE "Irasas_turnyro" (
     ID SERIAL PRIMARY KEY,
     cre_data TIMESTAMP,
-    duomenys VARCHAR(4096)
+    duomenys VARCHAR(4096),
+    "createdAt" TIMESTAMP,
+    "updatedAt" TIMESTAMP
 );
 
--- Add foreign keys to Varzybos table
-ALTER TABLE Varzybos
-    ADD CONSTRAINT fk_varzybos_organizatorius
-    FOREIGN KEY (organizatoriusVartotojo_ID)
-    REFERENCES Vartotojas(ID);
+-- Add foreign keys to "Turnyras" table
+ALTER TABLE "Turnyras"
+    ADD CONSTRAINT fk_turnyro_organizatorius
+    FOREIGN KEY ("organizatoriusVartotojo_ID")
+    REFERENCES "Vartotojas"(ID);
 
--- Add foreign keys to Zmones table
-ALTER TABLE Zmones
-    ADD CONSTRAINT fk_zmones_vartotojas
-    FOREIGN KEY (vartotojo_ID)
-    REFERENCES Vartotojas(ID);
+-- Add foreign keys to TurnyroRole table
+ALTER TABLE "Turnyro_Role"
+    ADD CONSTRAINT fk_turnyro_role_vartotojas
+    FOREIGN KEY ("vartotojo_ID")
+    REFERENCES "Vartotojas"(ID);
 
-ALTER TABLE Zmones
-    ADD CONSTRAINT fk_zmones_varzybos
-    FOREIGN KEY (varzybos_ID)
-    REFERENCES Varzybos(ID);
+ALTER TABLE "Turnyro_Role"
+    ADD CONSTRAINT fk_turnyro_role_turnyro
+    FOREIGN KEY ("turnyro_ID")
+    REFERENCES "Turnyras"(ID);
 
--- Add foreign keys to Lenkimo_sesija table
-ALTER TABLE Lenkimo_sesija
+-- Add foreign keys to "Lenkimo_sesija" table
+ALTER TABLE "Lenkimo_sesija"
     ADD CONSTRAINT fk_lenkimo_sesija_dalyvio1
-    FOREIGN KEY (dalyvio_ID)
-    REFERENCES Zmones(ID);
+    FOREIGN KEY ("dalyvio_ID")
+    REFERENCES "Turnyro_Role"(ID);
 
-ALTER TABLE Lenkimo_sesija
+ALTER TABLE "Lenkimo_sesija"
     ADD CONSTRAINT fk_lenkimo_sesija_dalyvio2
-    FOREIGN KEY (dalyvio2_ID)
-    REFERENCES Zmones(ID);
+    FOREIGN KEY ("dalyvio2_ID")
+    REFERENCES "Turnyro_Role"(ID);
 
-ALTER TABLE Lenkimo_sesija
+ALTER TABLE "Lenkimo_sesija"
     ADD CONSTRAINT fk_lenkimo_sesija_laimetojas
-    FOREIGN KEY (laimetojoDalyvio_ID)
-    REFERENCES Zmones(ID);
+    FOREIGN KEY ("laimetojoDalyvio_ID")
+    REFERENCES "Turnyro_Role"(ID);
 
-ALTER TABLE Lenkimo_sesija
-    ADD CONSTRAINT fk_lenkimo_sesija_teisejas
-    FOREIGN KEY (teisejasDalyvio_ID)
-    REFERENCES Zmones(ID);
+ALTER TABLE "Lenkimo_sesija"
+    ADD CONSTRAINT fk_lenkimo_sesija_teisejas1
+    FOREIGN KEY ("teisejas_ID")
+    REFERENCES "Turnyro_Role"(ID);
 
-ALTER TABLE Lenkimo_sesija
-    ADD CONSTRAINT fk_lenkimo_sesija_varzybos
-    FOREIGN KEY (varzybu_ID)
-    REFERENCES Varzybos(ID);
+ALTER TABLE "Lenkimo_sesija"
+    ADD CONSTRAINT fk_lenkimo_sesija_teisejas2
+    FOREIGN KEY ("teisejas2_ID")
+    REFERENCES "Turnyro_Role"(ID);
 
--- Add foreign keys to Prazangos table
-ALTER TABLE Prazangos
-    ADD CONSTRAINT fk_prazangos_zmones
-    FOREIGN KEY (dalyvio_ID)
-    REFERENCES Zmones(ID);
+ALTER TABLE "Lenkimo_sesija"
+    ADD CONSTRAINT fk_lenkimo_sesija_turnyro
+    FOREIGN KEY ("varzybu_ID")
+    REFERENCES "Turnyras"(ID);
 
-ALTER TABLE Prazangos
+-- Add foreign keys to "Prazangos" table
+ALTER TABLE "Prazangos"
+    ADD CONSTRAINT fk_prazangos_turnyrorole
+    FOREIGN KEY ("dalyvio_ID")
+    REFERENCES "Turnyro_Role"(ID);
+
+ALTER TABLE "Prazangos"
     ADD CONSTRAINT fk_prazangos_lenkimo_sesija
-    FOREIGN KEY (lenkimo_ID)
-    REFERENCES Lenkimo_sesija(ID);
+    FOREIGN KEY ("lenkimo_ID")
+    REFERENCES "Lenkimo_sesija"(ID);

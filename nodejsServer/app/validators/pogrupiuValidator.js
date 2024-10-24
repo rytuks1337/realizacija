@@ -1,4 +1,3 @@
-// Assuming you have pool defined as your PostgreSQL pool in a db.js file
 const pool = require('../config/db.js');
 
 async function validateVarPogrupiaiID(req, res, next) {
@@ -25,4 +24,4 @@ async function validateVarPogrupiaiID(req, res, next) {
   }
 }
 
-module.exports = validateVarPogrupiaiID;
+module.exports = { validateVarPogrupiaiID };

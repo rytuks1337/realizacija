@@ -1,12 +1,16 @@
-const express = require('express');
-const { body, validationResult } = require('express-validator');
-const router = express.Router();
-const {getUserById} = require('../controllers/userController.js')
+import express from 'express';
 
-const {authenticateToken} = require('../middleware/auth.js');
+const router = express.Router();
+
+import {registerUser} from '../controllers/userController.js';
+import {getUserWithUUID} from '../controllers/uuidController.js';
+import  {registerValidation} from '../validators/userValidator.js';
+import { uuidParamValidation } from '../validators/uuidValidator.js';
+import  {authenticateToken} from '../middleware/authMiddleware.js';
 
 // Get this user
-router.get('/', authenticateToken, getUserById);
+router.get('/:uuid', authenticateToken, uuidParamValidation,  getUserWithUUID);
 
+router.post('/register', registerValidation, registerUser);
 
-module.exports = router;
+export default router;
