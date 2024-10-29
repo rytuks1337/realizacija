@@ -44,3 +44,22 @@ Lytis
 •	Autentifikacija, autorizacija.
 
 
+
+API - critical functionality:
+* [[Logic]]
+* [[Login&register]]- implies finished (or near it) permission system
+* [[Account&Data]] - implies finding out all of the data points
+* Connectivity - availability and secure connectivity
+* Documentation
+* Testing
+* Cycle
+Android app - client
+ * ability to login
+ * ability to register
+ * ability to start/join tournament
+ * Organizer ability to modify existing one
+ * Check status/scoreboard (should be pretty)
+ * Referee ability
+Webapp - client
+ * View current and old matches
+ * Organizer ability to modify existing one
