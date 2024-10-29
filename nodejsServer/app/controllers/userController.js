@@ -1,4 +1,4 @@
-import {createUser, } from '../services/userService.js';
+import {createUser} from '../services/userService.js';
 import {createUserUUIDbyID, getUserByUUID} from '../services/uuidServices.js'
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs'
@@ -18,7 +18,6 @@ const registerUser = async (req, res) => {
       const user = await createUser({ vardas, pavarde, amzius, el_pastas, slaptazodis: hashedPassword, lytis });
       
       const newUUID = await createUserUUIDbyID({vartotojo_ID: user['id']});
-      console.log(3);
       res.status(201).json({"message":"Success"});
     } catch (error) {
       res.status(500).json({ error: error.message });

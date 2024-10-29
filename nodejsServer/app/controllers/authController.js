@@ -1,11 +1,10 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+
 import { validationResult } from 'express-validator';
 import { findUserByEmail } from '../services/userService.js';
 import { getUUID_FromUserID } from '../services/uuidServices.js';
-import dotenv from 'dotenv';
+import { generateAccessToken } from '../middleware/authMiddleware.js';
 
-dotenv.config();
 
 
 const login = async (req, res) => {
@@ -27,15 +26,11 @@ const login = async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
-    const accessToken = jwt.sign(
-      { id: await getUUID_FromUserID(user.id) },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: '1h' }
-    );
+    const accessToken = await generateAccessToken(await getUUID_FromUserID(user.id));
 
-    res.json({ accessToken });
+    return res.json({ accessToken });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 };
 

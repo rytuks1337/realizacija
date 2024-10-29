@@ -3,6 +3,7 @@ CREATE TYPE vartotojo_tipas AS ENUM ('Judge', 'Participant', 'Organizer');
 CREATE TYPE prazangos_tipas AS ENUM ('Elbow', 'Hand', 'FStart', 'ISlip');
 CREATE TYPE ranka_tipas AS ENUM ('K', 'D');
 CREATE TYPE lytis_tipas AS ENUM ('V', 'M');
+CREATE TYPE status_tipas AS ENUM ('INIT', 'SETUP', 'REGISTER', 'START', 'IN_PROCCESS', 'FINISHED');
 
 
 -- Create table: "Vartotojas"
@@ -45,6 +46,7 @@ CREATE TABLE "Pogrupis" (
 CREATE TABLE "Turnyras" (
     ID SERIAL PRIMARY KEY,
     pavadinimas VARCHAR(100),
+    status status_tipas,
     data DATE,
     lokacija VARCHAR(50),
     stalu_sk INT,

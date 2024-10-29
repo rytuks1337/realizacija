@@ -15,7 +15,7 @@ app.use(express.json());
 // app.use(logAction);
 
 
-app.use('/api/auth', authRoutes); //finished? rolelogic
+app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes); //getUser
 
 //app.use('/api/tournament', tournamentRoutes);

@@ -1,25 +1,24 @@
-const { validationResult } = require('express-validator');
-const { createTournament } = require('../models/Tournament.js');
-const { getAllPlayers } = require('./playerController.js')
-const { getMatchesByTournament } = require('./matchController.js');
-const {createPogrupisForTournament} = require('./pogrupiuController.js')
-const { createMatch } = require('./matchController.js');
-const { shuffle } = require('../utils/shuffle.js');
-const pool = require('../config/db.js');
+import { validationResult } from 'express-validator';
+import { newTournament } from '../services/tournamentService.js';
+import { getAllPlayers } from './playerController.js'
+import { getMatchesByTournament } from './matchController.js';
+import { createMatch } from './matchController.js';
+import { shuffle } from '../utils/shuffle.js';
 
 
-const createT = async (req, res) => {
+const createTournament = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  const { pavadinimas, data, stalu_sk, lokacija, pradzia, pabaiga, aprasas, pogrupis_sarasas } = req.body;
+  const { pavadinimas, data, stalu_sk, lokacija, pradzia, pabaiga, aprasas } = req.body;
   const organizatoriusVartotojo_ID = req.user;
 
   try {
-    const tournament = await createTournament({ pavadinimas, data,stalu_sk, lokacija, pradzia, pabaiga, aprasas, organizatoriusVartotojo_ID });
-    const pogrupis = await createPogrupisForTournament(pogrupis_sarasas, tournament.id);
-    res.status(201).json(tournament);
+    const tournament = await newTournament({ pavadinimas, data,stalu_sk, lokacija, pradzia, pabaiga, aprasas, organizatoriusVartotojo_ID });
+
+    res.status(201).json({message: "Successfully created tournament", id: tournament.id });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -77,4 +76,4 @@ const getTournaments = async (req, res) => {
   }
 };
 
-module.exports = { createT, generateMatches, getTournamentTable, getTournaments };
+export { createTournament, generateMatches, getTournamentTable, getTournaments};

@@ -36,7 +36,7 @@ const getUserByUUID = async (uuidvar) => {
         }
         return await findUserByID(result.vartotojo_ID);
     } catch(error){
-        res.status(500).json({ error: error.message });
+        return null;
     }
     return null;
     
