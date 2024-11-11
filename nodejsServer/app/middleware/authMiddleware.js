@@ -29,7 +29,7 @@ const refreshToken = async (req, res) => {
         if (oldtoken == null) return res.sendStatus(401);
         
         const newToken = await generateAccessToken(jwt.verify(oldtoken, process.env.ACCESS_TOKEN_SECRET).id);
-        return res.json({ token: newToken });
+        return res.json({ authtoken: newToken });
       } catch (error) {
         res.status(401).json({ error: error.message });
       }
