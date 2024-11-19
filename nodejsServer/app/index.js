@@ -1,6 +1,6 @@
 import express from 'express';
 import winston from 'winston';
-// //const tournamentRoutes = require('./routes/tournament.js');
+import tournamentRoutes from './routes/tournament.js';
 import authRoutes from './routes/auth.js';
 // //const matchRoutes = require('./routes/match.js');
 // //const playerRoutes = require('./routes/player.js');
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes); //getUser
 
-//app.use('/api/tournament', tournamentRoutes);
+app.use('/api/tournament', tournamentRoutes);
 //app.use('/api/match', matchRoutes);
 //app.use('/api/player', playerRoutes);
 //app.use('/api/referee', refRoutes);

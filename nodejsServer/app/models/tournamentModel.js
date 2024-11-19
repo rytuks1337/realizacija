@@ -1,14 +1,14 @@
 import { DataTypes }  from 'sequelize';
 import sequelize from '../config/db.js';
 
-const tournament = sequelize.define('Turnyras', {
+const Tournament = sequelize.define('Turnyras', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
   status: {
-    type: DataTypes.ENUM('INIT', 'SETUP', 'REGISTER', 'START', 'IN_PROCCESS', 'FINISHED'),
+    type: DataTypes.ENUM('INIT', 'SETUP', 'REGISTER', 'IN_PROCCESS', 'FINISHED'),
     allowNull: false,
   },
   pavadinimas: {
@@ -40,17 +40,9 @@ const tournament = sequelize.define('Turnyras', {
     type: DataTypes.STRING(4096),
     allowNull: true,
   },
-  organizatoriausVartotojo_ID: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  var_pogrupiai_ID: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
 }, {
   tableName: 'Turnyras',
   timestamps: true,
 });
 
-export default tournament;
+export default Tournament;

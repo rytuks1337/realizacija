@@ -1,30 +1,31 @@
 import User from '../models/userModel.js';
 
 
+class UserService{
 
-const createUser = async (userData) => {
-  return await User.create(userData);
-};
+  static async createUser (userData) {
+    return await User.create(userData);
+  };
 
-const findUserByEmail = async (email) => {
-  const result = await User.findOne({
-    where : {
-      el_pastas : email
-    }
-  })
-  return result;
-};
+  static async findUserByEmail(email) {
+    const result = await User.findOne({
+      where : {
+        el_pastas : email
+      }
+    })
+    return result;
+  };
 
-const findUserByID = async (userID) => {
+  static async findUserByID (userID) {
 
-  const result = await User.findOne({
-    where : {
-      id : userID
-    }
-  })
-  return result;
-};
+    const result = await User.findOne({
+      where : {
+        id : userID
+      }
+    })
+    return result;
+  };
 
+}
 
-
-export { createUser, findUserByEmail, findUserByID };
+export default UserService;

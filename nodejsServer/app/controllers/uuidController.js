@@ -1,8 +1,10 @@
 
-import { getUserByUUID } from '../services/uuidServices.js'
+import UuidService from '../services/uuidServices.js'
 import { validationResult } from 'express-validator';
 
-const getUserWithUUID = async (req, res) => {
+class UuidController{
+
+  static async getUserWithUUID (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
        res.status(400).json({ errors: errors.array() });
@@ -10,7 +12,7 @@ const getUserWithUUID = async (req, res) => {
     try {
       const userUUID = req.params.uuid;
 
-      const user = await getUserByUUID(userUUID);
+      const user = await UuidService.getUserByUUID(userUUID);
 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
@@ -20,5 +22,6 @@ const getUserWithUUID = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+}
 
-export {getUserWithUUID}
+export default UuidController;

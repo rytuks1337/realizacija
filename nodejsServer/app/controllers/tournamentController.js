@@ -1,79 +1,85 @@
 import { validationResult } from 'express-validator';
-import { newTournament } from '../services/tournamentService.js';
-import { getAllPlayers } from './playerController.js'
-import { getMatchesByTournament } from './matchController.js';
-import { createMatch } from './matchController.js';
-import { shuffle } from '../utils/shuffle.js';
+import TournamentService from '../services/tournamentService.js';
+import UuidService from '../services/uuidServices.js';
+//import { getAllPlayers } from './playerController.js'
+//import { getMatchesByTournament } from './matchController.js';
+//import { createMatch } from './matchController.js';
+//import { shuffle } from '../utils/shuffle.js';
 
 
-const createTournament = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  const { pavadinimas, data, stalu_sk, lokacija, pradzia, pabaiga, aprasas } = req.body;
-  const organizatoriusVartotojo_ID = req.user;
+class TournamentController{
 
-  try {
-    const tournament = await newTournament({ pavadinimas, data,stalu_sk, lokacija, pradzia, pabaiga, aprasas, organizatoriusVartotojo_ID });
+  static async createTournament (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { pavadinimas, data, stalu_sk, lokacija, pradzia, pabaiga, aprasas } = req.body;
+    const organizatoriusVartotojo_ID = (await UuidService.getUserByUUID(req.user)).id;
+    try {
+      const tournament = await TournamentService.newTournament(organizatoriusVartotojo_ID, pavadinimas, data, lokacija, stalu_sk, pradzia, pabaiga, aprasas);
 
-    res.status(201).json({message: "Successfully created tournament", id: tournament.id });
+      res.status(201).json({message: "Successfully created tournament", id: tournament.id });
 
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 
-const generateMatches = async (req, res) => {
-  const { tournament_id } = req.params;
+  static async startTournamnet (req, res){
+    //check if valid tournament
+    //check for valid referees, players and groups.
+    //generate tables for each of the groups
+    //Change the state of the tournament to "Started"
 
-  try {
-    const players = await getAllPlayers(tournament_id);
-    const shuffledPlayers = shuffle(players);
+  };
 
-    // Double elimination logic
-    let matches = [];
-    let round = 1;
-    let matchNum = 1;
+  static async updateTournamentState (req, res) {
+    const { tournament_id } = req.params;
+    const validStates = ['INIT', 'SETUP', 'REGISTER', 'IN_PROCESS', 'FINISHED'];
 
-    // Initial round
-    for (let i = 0; i < shuffledPlayers.length; i += 2) {
-      if (shuffledPlayers[i + 1]) {
-        matches.push({ tournament_id, round, match_num: matchNum++, player1_id: shuffledPlayers[i].id, player2_id: shuffledPlayers[i + 1].id, status: 'scheduled' });
-      } else {
-        matches.push({ tournament_id, round, match_num: matchNum++, player1_id: shuffledPlayers[i].id, player2_id: null, status: 'bye' });
+    try {
+      const tournament = await TournamentService.findTournamentById(tournament_id);
+      if (!tournament) {
+        return res.status(404).json({ error: 'Tournament not found' });
       }
+
+      const currentStateIndex = validStates.indexOf(tournament.state);
+      if (currentStateIndex === -1 || currentStateIndex === validStates.length - 1) {
+        return res.status(400).json({ error: 'Invalid current state or state is already FINISHED' });
+      }
+
+      const newState = validStates[currentStateIndex + 1];
+      tournament.state = newState;
+      await tournament.save();
+
+      res.status(200).json({ message: 'Tournament state updated successfully', state: newState });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
+  };
 
-    for (const match of matches) {
-      await createMatch(match);
+  static async getTournamentState  (req, res) {
+
+  };
+  static async get20Tournaments  (req, res) {
+    
+  };
+  static async getTournament (req, res) {
+
+  };
+
+
+  static async getTournamentTable (req, res) {
+    const { tournament_id } = req.params;
+
+    try {
+      const matches = await getMatchesByTournament(tournament_id);
+      res.status(200).json(matches);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
+  };
 
-    res.status(201).json(matches);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-const getTournamentTable = async (req, res) => {
-  const { tournament_id } = req.params;
-
-  try {
-    const matches = await getMatchesByTournament(tournament_id);
-    res.status(200).json(matches);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-const getTournaments = async (req, res) => {
-
-  try {
-    const result = await pool.query('SELECT * FROM Varzybos');
-    res.status(200).json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-export { createTournament, generateMatches, getTournamentTable, getTournaments};
+}
+export default TournamentController;

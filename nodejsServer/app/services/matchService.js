@@ -35,6 +35,37 @@ async function deleteMatch(id) {
     return result.rows[0];
 }
 
+static async generateMatches (req, res) {
+  const { tournament_id } = req.params;
+
+  try {
+    const players = await getAllPlayers(tournament_id);
+    const shuffledPlayers = shuffle(players);
+
+    // Double elimination logic
+    let matches = [];
+    let round = 1;
+    let matchNum = 1;
+
+    // Initial round
+    for (let i = 0; i < shuffledPlayers.length; i += 2) {
+      if (shuffledPlayers[i + 1]) {
+        matches.push({ tournament_id, round, match_num: matchNum++, player1_id: shuffledPlayers[i].id, player2_id: shuffledPlayers[i + 1].id, status: 'scheduled' });
+      } else {
+        matches.push({ tournament_id, round, match_num: matchNum++, player1_id: shuffledPlayers[i].id, player2_id: null, status: 'bye' });
+      }
+    }
+
+    for (const match of matches) {
+      await createMatch(match);
+    }
+
+    res.status(201).json(matches);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createMatch,
   getMatchById,

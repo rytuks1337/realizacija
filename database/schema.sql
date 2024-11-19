@@ -1,9 +1,9 @@
 -- Define ENUM type
-CREATE TYPE vartotojo_tipas AS ENUM ('Judge', 'Participant', 'Organizer');
+CREATE TYPE vartotojo_tipas AS ENUM ('Judge', 'Participant', 'Organizer', 'Owner');
 CREATE TYPE prazangos_tipas AS ENUM ('Elbow', 'Hand', 'FStart', 'ISlip');
 CREATE TYPE ranka_tipas AS ENUM ('K', 'D');
 CREATE TYPE lytis_tipas AS ENUM ('V', 'M');
-CREATE TYPE status_tipas AS ENUM ('INIT', 'SETUP', 'REGISTER', 'START', 'IN_PROCCESS', 'FINISHED');
+CREATE TYPE status_tipas AS ENUM ('INIT', 'SETUP', 'REGISTER', 'IN_PROCCESS', 'FINISHED');
 
 
 -- Create table: "Vartotojas"
@@ -50,10 +50,9 @@ CREATE TABLE "Turnyras" (
     data DATE,
     lokacija VARCHAR(50),
     stalu_sk INT,
-    pradzia TIME,
-    pabaiga TIME,
+    pradzia INT,
+    pabaiga INT,
     aprasas VARCHAR(4096),
-    "organizatoriusVartotojo_ID" INT,
     "createdAt" TIMESTAMP,
     "updatedAt" TIMESTAMP
 );
@@ -112,11 +111,6 @@ CREATE TABLE "Irasas_turnyro" (
     "updatedAt" TIMESTAMP
 );
 
--- Add foreign keys to "Turnyras" table
-ALTER TABLE "Turnyras"
-    ADD CONSTRAINT fk_turnyro_organizatorius
-    FOREIGN KEY ("organizatoriusVartotojo_ID")
-    REFERENCES "Vartotojas"(ID);
 
 -- Add foreign keys to TurnyroRole table
 ALTER TABLE "Turnyro_Role"

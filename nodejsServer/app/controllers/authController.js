@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
 
 import { validationResult } from 'express-validator';
-import { findUserByEmail } from '../services/userService.js';
-import { getUUID_FromUserID } from '../services/uuidServices.js';
+import UserService from '../services/userService.js';
+import UuidService from '../services/uuidServices.js';
 import { generateAccessToken } from '../middleware/authMiddleware.js';
 
 
@@ -16,7 +16,7 @@ const login = async (req, res) => {
   const { el_pastas, slaptazodis } = req.body;
 
   try {
-    const user = await findUserByEmail(el_pastas);
+    const user = await UserService.findUserByEmail(el_pastas);
     if (!user) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
@@ -26,7 +26,7 @@ const login = async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
-    const accessToken = await generateAccessToken(await getUUID_FromUserID(user.id));
+    const accessToken = await generateAccessToken(await UuidService.getUUID_FromUserID(user.id));
 
     return res.json({ accessToken });
   } catch (error) {

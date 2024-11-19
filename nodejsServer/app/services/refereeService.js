@@ -9,4 +9,4 @@ const createReferee = async (player) => {
   return result.rows[0];
 };
 
-module.exports = { createReferee };
+export { createReferee };
