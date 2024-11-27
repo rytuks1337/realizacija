@@ -38,11 +38,26 @@ class UuidService {
       } catch(error){
           return null;
       }
-      return null;
       
   };
+  static async getUserIdByUUID(uuidvar){
+    try{
+      const result = await UserUUID.findOne({
+          where : {
+            UUID : uuidvar
+          }
+        });
 
-  static async getUUID_FromUserID (id){
+      if(result == null){
+          return null;
+      }
+      return result.vartotojo_ID;
+    } catch(error){
+        return null;
+    }
+  }
+
+  static async getUUID_FromUserID (id,  data){
 
       const result = await UserUUID.findOne({
         where : {

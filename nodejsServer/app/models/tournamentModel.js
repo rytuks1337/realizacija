@@ -16,12 +16,12 @@ const Tournament = sequelize.define('Turnyras', {
     allowNull: false,
   },
   data: {
-    type: DataTypes.DATE,
+    type: 'TIMESTAMP',
     allowNull: false,
   },
-  pradzia: {
-    type: DataTypes.TIME,
-    allowNull: false,
+  tvarka: {
+    type: DataTypes.ARRAY(DataTypes.ARRAY(DataTypes.STRING(50))),
+    allowNull: true,
   },
   pabaiga: {
     type: DataTypes.TIME,

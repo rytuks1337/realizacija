@@ -1,21 +1,23 @@
-const express = require('express');
+import express from 'express';
+import GroupController from '../controllers/groupController.js';
+
+import {authenticateToken, authorizeRole} from '../middleware/authMiddleware.js';
+import { createGrouptValidation } from '../validators/groupValidator.js';
+
 const router = express.Router();
-const pogrupiaiController = require('../controllers/pogrupiuController.js');
-const pogrupis = require('../models/Pogrupis.js');
-const {authenticateToken, authorizeRole} = require('../middleware/auth.js');
 
 
+//router.get()
+// GET pogrupiai by Tournament
+//router.get('/:id', GroupController.getAllGroupsbyTournament);
 
-// GET pogrupiai by ID
-router.get('/pogrupiai/:id', pogrupis.getPogrupiaiById);
+// POST create new group
+router.post('/:tournament_id/groups', authenticateToken, authorizeRole(['Organizer', 'Owner']), createGrouptValidation, GroupController.createGroupsForTournament);
 
-// POST create new pogrupiai
-router.post('/pogrupiai', authenticateToken, pogrupis.addPogrupi); //, authorizeRole('Organizer')
+// PUT update group
+//router.put('/:id', authenticateToken, authorizeRole('Organizer'), pogrupis.updatePogrupiai);
 
-// PUT update pogrupiai
-router.put('/pogrupiai/:id', authenticateToken, authorizeRole('Organizer'), pogrupis.updatePogrupiai);
+// DELETE group
+//router.delete('/:id', authenticateToken, authorizeRole('Organizer'), pogrupis.deletePogrupiai);
 
-// DELETE pogrupiai
-router.delete('/pogrupiai/:id', authenticateToken, authorizeRole('Organizer'), pogrupis.deletePogrupiai);
-
-module.exports = router;
+export default router;

@@ -1,49 +1,41 @@
-const { validationResult } = require('express-validator');
-const {  addPogrupi, addPogrupiai_sar, updatePogrupiai, deletePogrupiai } = require('../models/groupModel.js');
-const pool = require('../config/db.js');
+import { ExtraError } from "../handlers/errorHandler.js";
+import GroupService from "../services/groupService.js";
 
 
-
-async function getAllPogrupiaibyTournament(id) {
-  const client = await pool.connect();
-  try {
-    const result = await client.query('SELECT * FROM Pogrupis Where varzybos_ID = $1',[id]);
-    return result.rows[0];
-  }catch (error){
-    return error;
-  } finally {
-    client.release();
+class GroupController{
+  static async getAllGroupsbyTournament(req, res) {
+    const { tournament_id } = req.params;
+    
+    try {
+      await GroupService.getAllGroupsbyTournament(tournament_id);
+      res.status(201).json({"data":result});
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
-}
-async function getAllPogrupiaibyPlayerOfTournament(id_T, id_P) {
-  const client = await pool.connect();
-  try {
-    const result = await client.query('SELECT * FROM Pogrupis Where vartotojo_ID = $1 AND varzybos_ID = $2',[id_P, id_T]);
-    return result.rows[0];
-  }catch (error){
-    return error;
-  } finally {
-    client.release();
+  static async getAllGroupsbyPlayerOfTournament(req, res) {
+    
   }
-}
 
-async function createPogrupisForTournament(sarasas, id_T){
-  const client = await pool.connect();
-  try {
-    const pogrupis = await addPogrupiai_sar(sarasas, id_T);
-    return pogrupis;
-  }catch (error){
-    return error;
-  } finally {
-    client.release();
+  static async createGroupsForTournament(req, res){
+    const { tournament_id } = req.params;
+    const data = req.body;
+    try {
+      await GroupService.createGroupsForTournament(tournament_id, data.data);
+      res.status(200).json({message: "Successfuly created groups"});
+    } catch (error) {
+      if(error instanceof ExtraError){
+        res.status(error.statusCode).json({error: error.message});
+      }else{
+        res.status(500).json({error: error.message});
+      }
+    }
+    
+    
+
   }
-}
-async function createPogrupisForPlayer(){
-  
+
 }
 
-  
-  // Get category by ID
 
-
-  module.exports = {getAllPogrupiaibyTournament,getAllPogrupiaibyPlayerOfTournament,createPogrupisForTournament,createPogrupisForPlayer }
+export default GroupController;

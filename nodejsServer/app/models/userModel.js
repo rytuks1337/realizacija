@@ -16,9 +16,13 @@ const User = sequelize.define('Vartotojas', {
     allowNull: false,
   },
   amzius: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DATE,
     allowNull: false,
-    validate: { min: 0, max: 128 },
+  },
+  svoris: {
+    type: DataTypes.FLOAT,
+    allowNull: true,
+    validate: { min: 1, max: 999 },
   },
   el_pastas: {
     type: DataTypes.STRING,

@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import UuidService from '../services/uuidServices.js';
+import RoleService from '../services/roleService.js';
 
 dotenv.config();
 
@@ -7,10 +9,15 @@ const authenticateToken = (req, res, next) => {
     const token = req.headers['authorization'];
     if (token == null) return res.sendStatus(401);
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
         if (err) return res.sendStatus(401);
-        req.user = user.id;
-        console.log(req.user);
+        try {
+            req.user = (await UuidService.getUserByUUID(user.id)).id;
+        } catch (error) {
+            res.status(404).json({error: "User not found"});
+            return;
+        }
+        
         next();
     });
     
@@ -20,7 +27,7 @@ const generateAccessToken = async (uuid) => {
     return jwt.sign(
         { id: uuid },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '24h' }
     );
 }
 const refreshToken = async (req, res) => {
@@ -35,28 +42,29 @@ const refreshToken = async (req, res) => {
       }
 }
 
-const authorizeRole = (requiredRole) => {
+const authorizeRole = (roleArray) => {
+
     return async (req, res, next) => {
         try {
-            const userId = req.user; // Assuming the user ID is stored in req.user from JWT payload
-            const tournamentId = req.params.tournamentId;
 
+            const userId = req.user; // Assuming the user ID is stored in req.user from JWT payload check.
+            const {tournament_id} = req.params;
+            var authorizerd=false;
             // Fetch the user's role for the tournament
-            const result = await pool.query(
-                'SELECT vartotojo_tipas FROM Zmones WHERE vartotojo_ID = $1 AND varzybos_ID = $2',
-                [userId, tournamentId]
-            );
-
-            if (result.rows.length === 0) {
+            const userRole = await RoleService.getRolesByUserId(tournament_id, userId);
+            if (userRole.length === 0) {
                 return res.status(403).json({ error: 'User not part of the tournament' });
             }
-
-            const userRole = result.rows[0].vartotojo_tipas;
-
-            if (userRole !== requiredRole) {
+            for(var i=0;i<userRole.length;i++){
+                if(roleArray.includes(userRole[i].vartotojo_tipas)){
+                    authorizerd = true;
+                    break;
+                }
+            }
+            if (!authorizerd) {
                 return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
             }
-
+            
             next();
         } catch (error) {
             return res.status(500).json({ error: error.message });

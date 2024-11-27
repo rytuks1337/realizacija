@@ -1,14 +1,9 @@
 
 import UuidService from '../services/uuidServices.js'
-import { validationResult } from 'express-validator';
 
 class UuidController{
 
   static async getUserWithUUID (req, res) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-       res.status(400).json({ errors: errors.array() });
-    }
     try {
       const userUUID = req.params.uuid;
 

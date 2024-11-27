@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db.js');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
 const Match = sequelize.define('lenkimoSesija', {
   id: {
@@ -8,31 +8,31 @@ const Match = sequelize.define('lenkimoSesija', {
     autoIncrement: true,
   },
   dalyvio_ID: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
+    type: DataTypes.INTEGER,
+    allowNull: true,
   },
   dalyvio2_ID: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
+    type: DataTypes.INTEGER,
+    allowNull: true,
   },
   laimetojoDalyvio_ID: {
     type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  pralaimetoDalyvio_ID: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  teisejai_ID: {
+    type: DataTypes.ARRAY(DataTypes.INTEGER),
     allowNull: false,
   },
-  teisejas_ID: {
+  grupes_ID: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  teisejas2_ID: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  varzybu_ID: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  pogrupis_ID: {
-    type: DataTypes.INTEGER,
+  status: {
+    type: DataTypes.ENUM('CREATED', 'IN_PROCCESS', 'FINISHED'),
     allowNull: false,
   },
 
@@ -41,4 +41,4 @@ const Match = sequelize.define('lenkimoSesija', {
   timestamps: true,
 });
 
-module.exports = Match;
+export default Match;

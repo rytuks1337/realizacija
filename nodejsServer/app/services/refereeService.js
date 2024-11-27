@@ -1,12 +1,27 @@
-const pool = require('../config/db.js');
+import { ExtraError } from "../handlers/errorHandler.js";
+import RoleService from "./roleService.js";
+import TableService from "./tableService.js";
 
-const createReferee = async (player) => {
-  const { vardas, pavarde, amzius, el_pastas, tournament_ID } = player;
-  const result = await pool.query(
-    'INSERT INTO Zmones (vardas, pavarde, amzius, el_pastas, varzybos_ID, vartotojo_tipas) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-    [vardas, pavarde, amzius, el_pastas, tournament_ID, 'Participant']
-  );
-  return result.rows[0];
-};
+class RefereeService{
 
-export { createReferee };
+  static async distributeRefs(tournament_id) {
+    const refs = await RoleService.getAllTournamentReferees(tournament_id);
+    var tables = await TableService.getAllTablesOfTournament(tournament_id);
+    if(tables.length>refs.length){
+      throw new ExtraError("Not enough referees", 403);
+    }
+    var final = [];
+    for (let index = 0; index < refs.length; index++) {
+      if(final[index%tables.length]===undefined ||final[index%tables.length]===null){
+        final[index%tables.length] = [];
+      }
+        final[index%tables.length].push(refs[index].id);
+    }
+    console.log("help", final);
+    for (let index = 0; index < tables.length; index++) {
+      tables[index].teiseju_id = final[index];
+      await tables[index].save()
+    }
+  };
+}
+export default RefereeService;
