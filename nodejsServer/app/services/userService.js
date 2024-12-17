@@ -11,7 +11,7 @@ class UserService{
     return await User.create(userData);
   };
   static async editUser(id, data){
-    var {vardas, pavarde, amzius,svoris, el_pastas, slaptazodis, lytis} = data;
+    var {vardas, pavarde, amzius, el_pastas, slaptazodis, lytis} = data;
     var currentUser = await User.findByPk(id);
     if(currentUser.length===0){
       throw ExtraError("User not found", 404);
@@ -26,9 +26,6 @@ class UserService{
       }
       if(amzius !== undefined){
         currentUser.amzius= amzius;
-      }
-      if(svoris !== undefined){
-        currentUser.svoris= amzius;
       }
       if(el_pastas !== undefined){
         currentUser.el_pastas= el_pastas;

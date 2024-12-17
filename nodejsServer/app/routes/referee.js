@@ -1,9 +1,11 @@
-const express = require('express');
-const { createRef } = require('../controllers/refereeController.js');
-const { refereeValidation } = require('../validators/refereeValidator.js');
-const { authenticateToken, authorizeRole } = require('../middleware/auth.js');
+import express from 'express';
+import MatchController from '../controllers/matchController.js';
+import  {authenticateToken, authorizeRole} from '../middleware/authMiddleware.js';
 const router = express.Router();
 
-router.post('/', authenticateToken, authorizeRole('Organizer'), refereeValidation, createRef);
 
-module.exports = router;
+router.put('/match/:id', authenticateToken, authorizeRole('Judge'), MatchController.updateMatch);
+
+
+
+export default router;

@@ -5,14 +5,15 @@ import GroupService from "../services/groupService.js";
 import RoleService from "./roleService.js";
 import TableService from "./tableService.js";
 import BracketService from "./bracketService.js";
+import PlayerTable from "../models/playerTableModel.js";
+import Group from "../models/groupModel.js";
 
 class MatchService{
   // Create match
-  static async createMatch(match, table_id) {
-    const {dalyvio_ID, dalyvio2_ID, laimetojoDalyvio_ID,pralaimetoDalyvio_ID, teisejai_ID, grupes_ID} = match;
+  static async createMatch(match, grupeObj) {
+    const {dalyvio_ID, dalyvio2_ID, laimetojoDalyvio_ID,pralaimetoDalyvio_ID, teisejai_ID, grupes_ID, roundNum} = match;
 
-    const result = await Match.create({dalyvio_ID, dalyvio2_ID, laimetojoDalyvio_ID,pralaimetoDalyvio_ID, teisejai_ID, grupes_ID, status: 'CREATED' });
-    await TableService.addMatch(table_id,result.id);
+    const result = await Match.create({dalyvio_ID, dalyvio2_ID, laimetojoDalyvio_ID,pralaimetoDalyvio_ID, teisejai_ID, grupes_ID, status: 'CREATED', round: roundNum});
 
     return result;
   };
@@ -28,10 +29,29 @@ class MatchService{
     return result;
 
   }
+  static async updateMatch(data,matchID) {
+
+    const result = await this.getMatchById(matchID);
+    const group = await GroupService.getGroupByID(result.group);
+    result.laimetojoDalyvio_ID = data.winner;
+    result.pralaimetoDalyvio_ID = data.loser;
+
+    let playerW = await PlayerTable.findByPk(data.winner);
+    let playerL = await PlayerTable.findByPk(data.loser);
+    playerW.laimejimai=playerW.laimejimai+1;
+    playerL.pralaimejimai=playerL.pralaimejimai+1;
+
+    await playerW.save();
+    await playerL.save();
+    await result.save();
+    await BracketService.updateRound(group);
+
+    return result;
+  }
+
 
   // Update match
-  static async updateMatchStatus(id) {
-    const match = await this.getMatchById(id);
+  static async updateMatchStatus(match) {
     const validStates = ['INIT', 'SETUP', 'IN_PROCCESS', 'FINISHED'];
 
     const currentStateIndex = validStates.indexOf(match.status);
@@ -54,12 +74,11 @@ class MatchService{
       return result;
   }
   static async generateMatchesForBrackets(group_ID) {
-    //const { tournament_id } = req.params;
-    //const tournament = await TournamentService.findTournamentById(tournament_id);
-    //const groups = await GroupService.getGroupByID(group_ID);
-    //const bracket = await BracketService.
-    
-
+    return await Match.findAll({
+        where:{
+          grupes_ID: group_ID
+        }
+    });
   };
 };
 

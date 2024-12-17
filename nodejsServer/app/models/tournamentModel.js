@@ -12,7 +12,7 @@ const Tournament = sequelize.define('Turnyras', {
     allowNull: false,
   },
   pavadinimas: {
-    type: DataTypes.STRING(30),
+    type: DataTypes.STRING(100),
     allowNull: false,
   },
   data: {
@@ -40,6 +40,10 @@ const Tournament = sequelize.define('Turnyras', {
     type: DataTypes.STRING(4096),
     allowNull: true,
   },
+  filepath:{
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  }
 }, {
   tableName: 'Turnyras',
   timestamps: true,

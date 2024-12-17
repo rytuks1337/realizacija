@@ -23,6 +23,19 @@ const authenticateToken = (req, res, next) => {
     
 };
 
+const testToken = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (token == null) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+        if (err) {
+            return res.status(403).json({ error: 'Invalid or expired token.' });
+        }
+        return res.status(200).json({message: 'Authenticated user'})
+    });
+    
+};
+
 const generateAccessToken = async (uuid) => {
     return jwt.sign(
         { id: uuid },
@@ -72,4 +85,4 @@ const authorizeRole = (roleArray) => {
     };
 };
 
-export {authenticateToken, authorizeRole, generateAccessToken, refreshToken};
+export {authenticateToken, authorizeRole, generateAccessToken, refreshToken, testToken};

@@ -24,7 +24,7 @@ const PlayerTable = sequelize.define('PlayerTable', {
     allowNull: true,
   },
 }, {
-  tableName: 'DalyvisTurnyrineLentle',
+  tableName: 'DalyvisTurnyrineLentele',
   timestamps: true,
 });
 

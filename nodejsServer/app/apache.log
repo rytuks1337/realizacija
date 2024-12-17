@@ -1,0 +1,6 @@
+[Tue Dec 17 01:00:17.215124 2024] [fcgid:info] [pid 1440855:tid 140126706632576] mod_fcgid: Process manager 1440855 started
+[Tue Dec 17 01:00:17.216615 2024] [mpm_event:notice] [pid 1440853:tid 140126706632576] AH00489: Apache/2.4.59 (Unix) mod_fcgid/2.3.9 configured -- resuming normal operations
+[Tue Dec 17 01:00:17.216669 2024] [mpm_event:info] [pid 1440853:tid 140126706632576] AH00490: Server built: May 31 2024 08:01:46
+[Tue Dec 17 01:00:17.216674 2024] [core:notice] [pid 1440853:tid 140126706632576] AH00094: Command line: '/usr/alwaysdata/apache/2.4.59/bin/apache -f /home/armwapi/admin/config/apache/apache.conf -D FOREGROUND'
+[Tue Dec 17 01:30:41.960081 2024] [mpm_event:notice] [pid 1440853:tid 140126706632576] AH00491: caught SIGTERM, shutting down
+[Tue Dec 17 01:30:41.971147 2024] [fcgid:info] [pid 1440855:tid 140126706632576] mod_fcgid: Process manager 1440855 stopped

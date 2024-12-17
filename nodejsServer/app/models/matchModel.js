@@ -31,6 +31,10 @@ const Match = sequelize.define('lenkimoSesija', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  round:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   status: {
     type: DataTypes.ENUM('CREATED', 'IN_PROCCESS', 'FINISHED'),
     allowNull: false,

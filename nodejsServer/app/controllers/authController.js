@@ -14,12 +14,12 @@ const login = async (req, res) => {
   try {
     const user = await UserService.findUserByEmail(el_pastas);
     if (!user) {
-      return res.status(400).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const match = await bcrypt.compare(slaptazodis, user.slaptazodis);
     if (!match) {
-      return res.status(400).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const accessToken = await generateAccessToken(await UuidService.getUUID_FromUserID(user.id));

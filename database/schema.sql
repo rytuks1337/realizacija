@@ -13,7 +13,6 @@ CREATE TABLE "Vartotojas" (
     vardas VARCHAR(50),
     pavarde VARCHAR(50),
     amzius DATE,
-    svoris FLOAT NULL,
     el_pastas VARCHAR(50) UNIQUE,
     slaptazodis VARCHAR(70),
     lytis lytis_tipas,
@@ -25,27 +24,8 @@ CREATE TABLE "Vartotojas" (
 -- Create table: "VartotojoUUID"
 CREATE TABLE "VartotojoUUID" (
     ID SERIAL PRIMARY KEY,
-    "vartotojo_ID" INT,
+    "vartotojo_ID" INT REFERENCES "Vartotojas"(ID),
     "UUID" VARCHAR(36),
-    FOREIGN KEY ("vartotojo_ID") REFERENCES "Vartotojas"(ID),
-    "createdAt" TIMESTAMP,
-    "updatedAt" TIMESTAMP
-);
-
--- Create table: "Pogrupis"
-CREATE TABLE "Pogrupis" (
-    ID SERIAL PRIMARY KEY,
-    "turnyro_ID" INT,
-
-    pavadinimas VARCHAR(50),
-    svoris VARCHAR(4),
-    amzius VARCHAR(4) NULL,
-    lytis lytis_tipas,
-    ranka ranka_tipas,
-
-    lenkimo_tvarka INT[],
-    bracket JSONB NULL,
-    raundas INT DEFAULT 0,
     "createdAt" TIMESTAMP,
     "updatedAt" TIMESTAMP
 );
@@ -61,14 +41,32 @@ CREATE TABLE "Turnyras" (
     tvarka VARCHAR(50)[][] NULL,
     pabaiga INT,
     aprasas VARCHAR(4096),
+    filepath VARCHAR(50),
     "createdAt" TIMESTAMP,
     "updatedAt" TIMESTAMP
 );
+
+-- Create table: "Pogrupis"
+CREATE TABLE "Pogrupis" (
+    ID SERIAL PRIMARY KEY,
+    "turnyro_ID" INT REFERENCES "Turnyras"(ID),
+    pavadinimas VARCHAR(50),
+    svoris VARCHAR(4),
+    amzius VARCHAR(4) NULL,
+    lytis lytis_tipas,
+    ranka ranka_tipas,
+    lenkimo_tvarka INT[],
+    bracket JSONB NULL,
+    raundas INT DEFAULT 0,
+    "createdAt" TIMESTAMP,
+    "updatedAt" TIMESTAMP
+);
+
 -- Create table: "Turnyro_Role"
 CREATE TABLE "Turnyro_Role" (
     ID SERIAL PRIMARY KEY,
-    "vartotojo_ID" INT NULL,
-    "turnyro_ID" INT,
+    "vartotojo_ID" INT NULL REFERENCES "Vartotojas"(ID),
+    "turnyro_ID" INT REFERENCES "Turnyras"(ID),
     vardas VARCHAR(50) NULL,
     pavarde VARCHAR(50) NULL,
     amzius DATE NULL,
@@ -76,19 +74,16 @@ CREATE TABLE "Turnyro_Role" (
     grupiu_id INT[] NULL,
     lytis lytis_tipas,
     vartotojo_tipas vartotojo_tipas,
-    FOREIGN KEY ("vartotojo_ID") REFERENCES "Vartotojas"(ID),
-    FOREIGN KEY ("turnyro_ID") REFERENCES "Turnyras"(ID),
     "createdAt" TIMESTAMP,
     "updatedAt" TIMESTAMP
 );
 -- Create table: "Dalyviai"
-CREATE TABLE "DalyvisTurnyrineLentle" (
+CREATE TABLE "DalyvisTurnyrineLentele" (
     ID SERIAL PRIMARY KEY,
-    "roles_ID" INT,
-    grupes_id INT,
+    "roles_ID" INT REFERENCES "Turnyro_Role"(ID),
+    grupes_id INT REFERENCES "Pogrupis"(ID),
     laimejimai INT DEFAULT 0,
     pralaimejimai INT DEFAULT 0,
-    FOREIGN KEY ("roles_ID") REFERENCES "Turnyro_Role"(ID),
     "createdAt" TIMESTAMP,
     "updatedAt" TIMESTAMP
 );
@@ -97,7 +92,7 @@ CREATE TABLE "DalyvisTurnyrineLentle" (
 CREATE TABLE "Stalai" (
     ID SERIAL PRIMARY KEY,
     nr INT,
-    "dabartinisLenkimoID" INT NULL,
+    "dabartinisLenkimoGrupesID" INT NULL,
     lenkimo_id INT[],
     turnyro_id INT,
     teiseju_id INT[] DEFAULT ARRAY[]::INT[],
@@ -108,17 +103,13 @@ CREATE TABLE "Stalai" (
 -- Create table: "Lenkimo_sesija"
 CREATE TABLE "Lenkimo_sesija" (
     ID SERIAL PRIMARY KEY,
-    "dalyvio_ID" INT,
-    "dalyvio2_ID" INT,
-    "laimetojoDalyvio_ID" INT NULL,
-    "pralaimetoDalyvio_ID" INT NULL,
+    "dalyvio_ID" INT REFERENCES "DalyvisTurnyrineLentele"(ID),
+    "dalyvio2_ID" INT REFERENCES "DalyvisTurnyrineLentele"(ID),
+    "laimetojoDalyvio_ID" INT NULL REFERENCES "DalyvisTurnyrineLentele"(ID),
+    "pralaimetoDalyvio_ID" INT NULL REFERENCES "DalyvisTurnyrineLentele"(ID),
     "teisejai_ID" INT[],
-    "grupes_ID" INT,
-    FOREIGN KEY ("dalyvio_ID") REFERENCES "DalyvisTurnyrineLentle"(ID),
-    FOREIGN KEY ("dalyvio2_ID") REFERENCES "DalyvisTurnyrineLentle"(ID),
-    FOREIGN KEY ("laimetojoDalyvio_ID") REFERENCES "DalyvisTurnyrineLentle"(ID),
-    FOREIGN KEY ("pralaimetoDalyvio_ID") REFERENCES "DalyvisTurnyrineLentle"(ID),
-    FOREIGN KEY ("grupes_ID") REFERENCES "Pogrupis"(ID),
+    "grupes_ID" INT REFERENCES "Pogrupis"(ID),
+    round INT,
     status status_tipasB DEFAULT 'CREATED',
     "createdAt" TIMESTAMP,
     "updatedAt" TIMESTAMP
@@ -127,8 +118,8 @@ CREATE TABLE "Lenkimo_sesija" (
 -- Create table: "Prazangos"
 CREATE TABLE "Prazangos" (
     ID SERIAL PRIMARY KEY,
-    "dalyvio_ID" INT,
-    "lenkimo_ID" INT,
+    "dalyvio_ID" INT REFERENCES "DalyvisTurnyrineLentele"(ID),
+    "lenkimo_ID" INT REFERENCES "Lenkimo_sesija"(ID),
     prazangos_tipas prazangos_tipas,
     "createdAt" TIMESTAMP,
     "updatedAt" TIMESTAMP
@@ -151,20 +142,3 @@ CREATE TABLE "Irasas_turnyro" (
     "createdAt" TIMESTAMP,
     "updatedAt" TIMESTAMP
 );
-
-
--- Add foreign keys to TurnyroRole table
-ALTER TABLE "Turnyro_Role"
-    ADD CONSTRAINT fk_turnyro_role_vartotojas
-    FOREIGN KEY ("vartotojo_ID")
-    REFERENCES "Vartotojas"(ID);
-
-ALTER TABLE "Turnyro_Role"
-    ADD CONSTRAINT fk_turnyro_role_turnyro
-    FOREIGN KEY ("turnyro_ID")
-    REFERENCES "Turnyras"(ID);
-
-ALTER TABLE "Prazangos"
-    ADD CONSTRAINT fk_prazangos_lenkimo_sesija
-    FOREIGN KEY ("lenkimo_ID")
-    REFERENCES "Lenkimo_sesija"(ID);

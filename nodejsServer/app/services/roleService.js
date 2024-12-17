@@ -27,18 +27,19 @@ class RoleService {
       if(data.lytis===undefined){
         throw new ExtraError("Gender is not defined", 400);
       }
-      data.grupes.forEach(element => {
-        if(!GroupService.groupValid(element, user_id, data)){
-          throw new ExtraError("User does not meet one or more requirments of the selected groups");
+
+      for (let index = 0; index < data.grupes.length; index++) {
+        if(!(await GroupService.groupValid(data.grupes[index], user_id, data))){
+          throw new ExtraError("User or one of the users do not meet one or more requirments of the selected groups");
         }
-      });
+      }
       const role = await Role.create({"vardas": data.vardas, "pavarde": data.pavarde, "amzius": data.amzius, "svoris": data.svoris, "lytis": data.lytis, "vartotojo_tipas": data.role, "turnyro_ID" : tournament_id, "grupiu_id": data.grupes});
-      data.grupes.forEach(element => {
-        PlayerTable.create({"roles_ID": role.id, "grupes_id": element});
-      });
+      for (let index = 0; index < data.grupes.length; index++) {
+        await PlayerTable.create({"roles_ID": role.id, "grupes_id": data.grupes[index]});
+      }
       
       if(role.length===0){
-        throw new Error("Error creating role for this user");
+        throw new Error("Error creating role for a user");
       }
       return role;
     }else{
@@ -142,7 +143,11 @@ class RoleService {
       const birthYear = today.getFullYear() - element.amzius; 
       element.amzius = new Date(birthYear, 0, 1);
       element.role = 'Participant';
-      element.grupes = await GroupService.getValidGroups(tournament_id, undefined, element);
+      var possibleGroups = await GroupService.getValidGroups(tournament_id, undefined, element);
+      if(possibleGroups.length>1){
+        possibleGroups = [possibleGroups[Math.floor(Math.random() * (possibleGroups.length-1))], possibleGroups[Math.floor(Math.random() * (possibleGroups.length-1))]];
+      }
+      element.grupes=possibleGroups;
       await this.createRole(tournament_id, undefined, element);
     }
   }

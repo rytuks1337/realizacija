@@ -12,11 +12,12 @@ class GroupService{
     var groups = {};
     groups.data = unloadJson(data);
     groups.order = getJsonOrder(data);
-    console.log(groups.order);
+
     try {
-      groups.data.forEach(value =>{
-        Group.create({"lytis": value.lytis, "pavadinimas": value.pavadinimas, "amzius": value.metai, "ranka": value.ranka, "svoris":value.svoris, "turnyro_ID": turnyro_id })
-      });
+      for (let index = 0; index <  groups.data.length; index++) {
+        let value=groups.data[index];
+        await Group.create({"lytis": value.lytis, "pavadinimas": value.pavadinimas, "amzius": value.metai, "ranka": value.ranka, "svoris":value.svoris, "turnyro_ID": turnyro_id })
+      }
       
       await TournamentService.updateTournament(turnyro_id,{"tvarka": groups.order});
       
@@ -27,6 +28,40 @@ class GroupService{
     }
     return "success";
     
+  }
+  static async addMatch(currentTable, rounds){
+
+    var orderOfMatches=[];
+    let lostround=0;
+    console.log(rounds);
+    for(let i=0;i<rounds.winB.length;i++){
+
+        if(i<rounds.winB.length){
+            for(let j=0;j<rounds.winB[i].length;j++){
+                orderOfMatches.push(rounds.winB[i][j]);
+            }
+        }
+        if(i===0){
+          if(i<rounds.losB.length){
+              for(let j=0;j<rounds.losB[i].length;j++){
+                  orderOfMatches.push(rounds.losB[i][j]);
+              }
+              lostround = lostround+1;
+          }
+        }else if(rounds.losB[lostround+1]){
+
+          for(let j=0;j<rounds.losB[lostround].length;j++){
+              orderOfMatches.push(rounds.losB[lostround][j]);
+          }
+          lostround = lostround+1;
+          for(let j=0;j<rounds.losB[lostround].length;j++){
+              orderOfMatches.push(rounds.losB[lostround][j]);
+          }
+          lostround = lostround+1;
+
+        }
+    }
+    await currentTable.update({lenkimo_tvarka: orderOfMatches});
   }
   static async groupValid(groupID, user_id, data){
     const group = await this.getGroupByID(groupID);
@@ -41,7 +76,6 @@ class GroupService{
       }
     }
     if(!group.svoris.includes('+')){
-      console.log(data);
       if(parseInt(group.svoris) < data.svoris){
         return false;
       }
@@ -67,8 +101,7 @@ class GroupService{
     return validgroups;
   }
   // Update pogrupis
-  static async updatePogrupiai(id, data) {
-    var group = await this.getGroupByID(id);
+  static async updatePogrupiai(group, data) {
     if(data===undefined ||data===null){
       throw new ExtraError("Group not found", 404);
     }
@@ -127,7 +160,7 @@ class GroupService{
     const tournament = await TournamentService.findTournamentById(tournament_id);
     const groups = await this.getAllGroupsbyTournament(tournament_id);
     const order = tournament.tvarka;
-    const tableDissplcment = Array.from({ length: tournament.stalu_sk }, () => []);
+    const tableDissplcment = Array.from({ length: tournament.stalu_sk }, () => []);//E.g. if stlau_sk=3, this will create [[],[],[]]
     var groupParticipantCounts = {};
     // For each group
     for (const element of groups) {
@@ -145,7 +178,7 @@ class GroupService{
     const groupList = Object.entries(groupParticipantCounts).map(([key, count]) => {
       const [name, gender] = key.split('_');
         return { name, gender, count };
-    }); // Grouplist consists of uniqe key per gender and the group name, used to get to know all of the group names
+    }); // Grouplist consists of unique key/gender and the group name, used to get to know all of the group names
 
     // Sort `groupList` based on the order that the user has provided while creating the  in the `groups` array
     groupList.sort((a, b) => {
@@ -160,6 +193,7 @@ class GroupService{
     }
     return tableDissplcment;
   }
+  
   static async getBracketByGroup(group_ID){
     const group = await this.getGroupByID(group_ID);
     if(group.length === 0 ){

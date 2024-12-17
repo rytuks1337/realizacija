@@ -7,6 +7,7 @@ import BracketService from '../services/bracketService.js';
 import TableService from '../services/tableService.js';
 import RefereeService from '../services/refereeService.js';
 import { ExtraError } from '../handlers/errorHandler.js';
+import GroupService from '../services/groupService.js';
 //import { getAllPlayers } from './playerController.js'
 //import { getMatchesByTournament } from './matchController.js';
 //import { createMatch } from './matchController.js';
@@ -16,16 +17,14 @@ import { ExtraError } from '../handlers/errorHandler.js';
 class TournamentController{
 
   static async createTournament (req, res) {
-
     const { pavadinimas, data, stalu_sk, lokacija, pradzia, pabaiga, aprasas } = req.body;
     var date;
     const organizatoriusVartotojo_ID = req.user;
     if(pradzia !== undefined){
       date=data+"T"+pradzia+":00:00.00Z";
     }else date=data+"T00:00:00.00Z";
-    console.log(date);
     try {
-      const tournament = await TournamentService.newTournament(organizatoriusVartotojo_ID, pavadinimas, date, lokacija, stalu_sk, pabaiga, aprasas);// Create tournament, add current user to owners and generate table objects.
+      const tournament = await TournamentService.newTournament(organizatoriusVartotojo_ID, pavadinimas, date, lokacija, stalu_sk, pabaiga, aprasas, req.filepath);// Create tournament, add current user to owners and generate table objects.
       res.status(201).json({message: "Successfully created tournament", id: tournament.id });
 
     } catch (error) {
@@ -35,18 +34,21 @@ class TournamentController{
 
   static async startTournamnet (req, res){
     const {tournament_id} = req.params;
-    try{
+    // try{
       await RefereeService.distributeRefs(tournament_id);
       await BracketService.initBracketsForTournament(tournament_id);
-    }catch(error){
-      if(error instanceof ExtraError){
-        return res.status(error.statusCode).json({message: error.message});
+      //fill tables with match id
+      //Referee control the next in line match
+      //
+    // }catch(error){
+    //   if(error instanceof ExtraError){
+    //     return res.status(error.statusCode).json({message: error.message});
         
-      }
-      return res.status(500).json({message: error.message});
-    }
+    //   }
+    //   return res.status(500).json({message: error.message});
+    // }
 
-    res.status(200).json({message: "Succesfull"});
+    return res.status(200).json({message: "Succesfull"});
     //check if valid tournament
     //check for valid referees, players and groups.
     //generate tables for each of the groups
@@ -125,11 +127,12 @@ class TournamentController{
 
 
   static async getTournamentTable (req, res) {
-    const { tournament_id } = req.params;
+    const { tournament_id, group_id} = req.params;
 
     try {
-      const matches = await getMatchesByTournament(tournament_id);
-      res.status(200).json(matches);
+      const group = await GroupService.getGroupByID(group_id)
+      const theBracket = await BracketService.generateBracketObj(group);
+      res.status(200).json(theBracket);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

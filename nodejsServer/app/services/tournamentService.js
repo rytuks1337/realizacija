@@ -6,14 +6,14 @@ import seq from 'sequelize';
 
 class TournamentService {
 
-  static async newTournament (organizatoriusVartotojo_ID, pavadinimas, data, lokacija, stalu_sk, pabaiga, aprasas) {
-    const newtournament = await Tournament.create({pavadinimas, status : "INIT", data, lokacija, stalu_sk, pabaiga, aprasas}); //Sukuriamas turnyras ir įrašomas į duomenų bazę.
+  static async newTournament (organizatoriusVartotojo_ID, pavadinimas, data, lokacija, stalu_sk, pabaiga, aprasas, filepath) {
+    const newtournament = await Tournament.create({pavadinimas, status : "INIT", data, lokacija, stalu_sk, pabaiga, aprasas, filepath}); //Sukuriamas turnyras ir įrašomas į duomenų bazę.
     const newRole = await RoleService.createRole(newtournament.id, organizatoriusVartotojo_ID, {role: "Owner"}); // Pridedama nauja rolė vartotojui, kuris sukūrė turnyrą.
     for (let index = 0; index < stalu_sk; index++) {
       const element = await TableService.createTable(newtournament.id, index);
     }
     return newtournament.id;
-  };
+  }; 
 
   static async getTournamentState (tournament_id){
     const status = await Tournament.findByPk(tournament_id);
@@ -30,7 +30,7 @@ class TournamentService {
     return Tournament.findAll({
       where: {
         status: {
-          [seq.Op.in]: ['IN_PROCCESS', 'REGISTER'], // Filtravimo operatorius, paimami tik tie įrašai, kurie turi minėtas reikšmes.
+          [seq.Op.in]: ['IN_PROCCESS', 'REGISTER', 'SETUP'], // Filtravimo operatorius, paimami tik tie įrašai, kurie turi minėtas reikšmes.
         },
       },
       order: [

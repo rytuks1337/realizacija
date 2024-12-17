@@ -19,11 +19,6 @@ const User = sequelize.define('Vartotojas', {
     type: DataTypes.DATE,
     allowNull: false,
   },
-  svoris: {
-    type: DataTypes.FLOAT,
-    allowNull: true,
-    validate: { min: 1, max: 999 },
-  },
   el_pastas: {
     type: DataTypes.STRING,
     allowNull: false,

@@ -1,4 +1,3 @@
-version: '3'
 services:
   postgresql:
     build:
@@ -11,21 +10,21 @@ services:
       - db_network
     ports:
       - "5432:5432"
-  nodejs_server:
-    build: 
-      context: ./nodejsServer
-      dockerfile: Dockerfile
-    #environment:
-      #- NODE_ENV=production
-    volumes:
-      - ./nodejsServer:/usr/src/
-    networks:
-      - link_balancer
-      - db_network
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgresql
+  # nodejs_server:
+  #   build: 
+  #     context: ./nodejsServer
+  #     dockerfile: Dockerfile
+  #   #environment:
+  #     #- NODE_ENV=production
+  #   volumes:
+  #     - ./nodejsServer:/usr/src/
+  #   networks:
+  #     - link_balancer
+  #     - db_network
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - postgresql
   # load_balancer:
   #   build: 
   #     context: ./nginxServ
@@ -33,14 +32,11 @@ services:
   #   ports:
   #     - "80:80"
   #     - "443:443"
-  #   volumes:
-  #     - ./nginxServ/:/etc/nginx
   #   networks:
   #     - link_balancer
 
 networks:
  link_balancer: #used by nodejs
-  driver: bridge
  db_network: #used by database
 
 volumes:

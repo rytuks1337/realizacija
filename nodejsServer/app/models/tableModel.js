@@ -11,7 +11,7 @@ const Stalas = sequelize.define('Stalai', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  dabartinisLenkimoID: {
+  dabartinisLenkimoGrupesID: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },

@@ -17,7 +17,6 @@ class RefereeService{
       }
         final[index%tables.length].push(refs[index].id);
     }
-    console.log("help", final);
     for (let index = 0; index < tables.length; index++) {
       tables[index].teiseju_id = final[index];
       await tables[index].save()
