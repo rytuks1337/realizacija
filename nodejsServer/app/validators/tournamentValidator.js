@@ -22,12 +22,12 @@ const createTournamentValidation = [
         .isLength({max: 50}).withMessage("Exceeded maximum number of characters"),
     body('pradzia')
         .optional()
-        .isInt({min: 0, max: 23})
-        .withMessage('A valid starting hour (0-23) must be stated'),
+        .matches(/^\d\d:\d\d/)
+        .withMessage('A valid starting hour (00:00-23:00) must be stated'),
     body('pabaiga')
         .optional()
-        .isInt({min: 0, max: 23})
-        .withMessage('Only a valid ending hour (0-23) may be stated'),
+        .matches(/^\d\d:\d\d/)
+        .withMessage('Only a valid ending hour (00:00-23:00) may be stated'),
     validationCheck
 
 ];

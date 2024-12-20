@@ -39,7 +39,7 @@ CREATE TABLE "Turnyras" (
     lokacija VARCHAR(50),
     stalu_sk INT,
     tvarka VARCHAR(50)[][] NULL,
-    pabaiga INT,
+    pabaiga VARCHAR(5),
     aprasas VARCHAR(4096),
     filepath VARCHAR(50),
     "createdAt" TIMESTAMP,
@@ -121,24 +121,6 @@ CREATE TABLE "Prazangos" (
     "dalyvio_ID" INT REFERENCES "DalyvisTurnyrineLentele"(ID),
     "lenkimo_ID" INT REFERENCES "Lenkimo_sesija"(ID),
     prazangos_tipas prazangos_tipas,
-    "createdAt" TIMESTAMP,
-    "updatedAt" TIMESTAMP
-);
-
--- Create table: Irasa_prisijungimai
-CREATE TABLE "Irasas_prisijungimai" (
-    ID SERIAL PRIMARY KEY,
-    cre_data TIMESTAMP,
-    duomenys VARCHAR(4096),
-    "createdAt" TIMESTAMP,
-    "updatedAt" TIMESTAMP
-);
-
--- Create table: Irasa_turnyro
-CREATE TABLE "Irasas_turnyro" (
-    ID SERIAL PRIMARY KEY,
-    cre_data TIMESTAMP,
-    duomenys VARCHAR(4096),
     "createdAt" TIMESTAMP,
     "updatedAt" TIMESTAMP
 );

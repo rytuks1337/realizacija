@@ -21,7 +21,7 @@ class TournamentController{
     var date;
     const organizatoriusVartotojo_ID = req.user;
     if(pradzia !== undefined){
-      date=data+"T"+pradzia+":00:00.00Z";
+      date=data+"T"+pradzia+":00.00Z";
     }else date=data+"T00:00:00.00Z";
     try {
       const tournament = await TournamentService.newTournament(organizatoriusVartotojo_ID, pavadinimas, date, lokacija, stalu_sk, pabaiga, aprasas, req.filepath);// Create tournament, add current user to owners and generate table objects.
@@ -136,6 +136,16 @@ class TournamentController{
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
+  };
+  static async getTournamentQueueTables(req, res){
+    const { tournament_id} = req.params;
+    try {
+      const tables = await TableService.getQueueTables(tournament_id);
+      res.status(200).json(tables);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+
   };
 
 }

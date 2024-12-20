@@ -1,5 +1,6 @@
 import { ExtraError } from "../handlers/errorHandler.js";
 import PlayerTable from "../models/playerTableModel.js";
+import Role from "../models/roleModel.js";
 import GroupService from "./groupService.js";
 import MatchService from "./matchService.js";
 import RefereeService from "./refereeService.js";
@@ -155,7 +156,9 @@ class BracketService{
                     let bracket = await this.createBracket(table[index][indexj],thisGroup,stageTable); // Create bracket
                     await GroupService.addMatch(thisGroup,bracket);
                     await GroupService.updatePogrupiai(thisGroup,{bracket: bracket});
-                    await TableService.addGroup(stageTable,thisGroup,table[index][indexj]);
+                    if(bracket.winB.length===0){
+                        await TableService.addGroup(stageTable,thisGroup,table[index][indexj]);
+                    }
                     await this.updateRound(thisGroup);
                 }
             }
@@ -170,7 +173,6 @@ class BracketService{
             return;
         }
         while(notChanged){
- 
             notChanged=false;
             if(current_round!==bracket.winB.length-2){
                 for(let i = 0; i<bracket.winB[current_round].length;i++){
@@ -295,6 +297,55 @@ class BracketService{
         }
         return bracketOfId;
     }
+    static async generateBracketObjNames(group){
+        let bracketOfId = group.bracket;
+        const groupsMatches = await MatchService.generateMatchesForBrackets(group.id);
+        for(let i=0; i<bracketOfId.winB.length; i++){
+            for(let j=0; j<bracketOfId.winB[i].length; j++){
+                bracketOfId.winB[i][j] = getMatchFromArray(groupsMatches, bracketOfId.winB[i][j]);
+                bracketOfId.winB[i][j] = bracketOfId.winB[i][j].dataValues;
+                if(bracketOfId.winB[i][j].dalyvio_ID){
+                    let tempplayer = await PlayerTable.findByPk(bracketOfId.winB[i][j].dalyvio_ID);
+                    if(tempplayer && tempplayer.roles_ID){
+                        let tempRole = await Role.findByPk(tempplayer.roles_ID);
+                        bracketOfId.winB[i][j].dalyvioN = tempRole.vardas+ " " + tempRole.pavarde;
+                    }
+                }
+                if(bracketOfId.winB[i][j].dalyvio2_ID){
+                    let tempplayer = await  PlayerTable.findByPk(bracketOfId.winB[i][j].dalyvio2_ID);
+                    if(tempplayer && tempplayer.roles_ID){
+                        let tempRole = await Role.findByPk(tempplayer.roles_ID);
+                        bracketOfId.winB[i][j].dalyvio2N = tempRole.vardas+ " " + tempRole.pavarde;
+                    }
+                }
+            }
+        }
+        for(let i=0; i<bracketOfId.losB.length; i++){
+            for(let j=0; j<bracketOfId.losB[i].length; j++){
+                bracketOfId.losB[i][j] = getMatchFromArray(groupsMatches, bracketOfId.losB[i][j]);
+                bracketOfId.losB[i][j] = bracketOfId.losB[i][j].dataValues;
+                if(bracketOfId.losB[i][j].dalyvio_ID){
+                    let tempplayer = await  PlayerTable.findByPk(bracketOfId.losB[i][j].dalyvio_ID);
+                    if(tempplayer && tempplayer.roles_ID){
+                        let tempRole = await Role.findByPk(tempplayer.roles_ID);
+                        if(tempRole){
+                            bracketOfId.losB[i][j].dalyvioN = tempRole.vardas+ " " + tempRole.pavarde;
+                        }
+                    }
+                }
+                if(bracketOfId.losB[i][j].dalyvio2_ID){
+                    let tempplayer = await  PlayerTable.findByPk(bracketOfId.losB[i][j].dalyvio2_ID);
+                    if(tempplayer && tempplayer.roles_ID){
+                        let tempRole = await Role.findByPk(tempplayer.roles_ID);
+                        if(tempRole){
+                            bracketOfId.losB[i][j].dalyvio2N = tempRole.vardas+ " " + tempRole.pavarde;
+                        }
+                    }
+                }
+            }
+        }
+        return bracketOfId;
+    }
 }
 
 function calculateLosersRounds(nextPowerOfTwo) {
@@ -304,6 +355,6 @@ function calculateLosersRounds(nextPowerOfTwo) {
     return (Math.log2(nextPowerOfTwo) - 1) * 2;
 }
 function getMatchFromArray(groupsMatches, idOfMatch){
-    return groupsMatches.find(match => match.id ===idOfMatch);
+    return groupsMatches.find(match => match.id === idOfMatch);
 }
 export default BracketService;

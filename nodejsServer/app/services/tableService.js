@@ -1,7 +1,11 @@
+import { table } from 'console';
 import { ExtraError } from '../handlers/errorHandler.js';
 import Group from '../models/groupModel.js';
 import Stalas from '../models/tableModel.js';
 import GroupService from './groupService.js';
+import MatchService from './matchService.js';
+import PlayerTable from '../models/playerTableModel.js';
+import Role from '../models/roleModel.js';
 
 class TableService{
 
@@ -103,6 +107,57 @@ class TableService{
     }
     await currentTable.save();
   };
+  static async getQueueTables(tournament_id){
+    let tables = await this.getAllTablesOfTournament(tournament_id);
+    if(tables === null){
+      return null;
+    }
+    for(let i=0;i<tables.length;i++){
+      if(tables[i].dabartinisLenkimoGrupesID!==null){
+        tables[i]=tables[i].dataValues;
+        let matchtemp= await MatchService.getMatchById(tables[i].dabartinisLenkimoGrupesID);
+        if(matchtemp!==null){
+          tables[i].dabartinisLenkimoGrupesID = matchtemp.dataValues;
+          if(tables[i].dabartinisLenkimoGrupesID.dalyvio_ID){
+            let tempplayer = await PlayerTable.findByPk(tables[i].dabartinisLenkimoGrupesID.dalyvio_ID);
+            if(tempplayer && tempplayer.roles_ID){
+                let tempRole = await Role.findByPk(tempplayer.roles_ID);
+                tables[i].dabartinisLenkimoGrupesID.dalyvioN = tempRole.vardas+ " " + tempRole.pavarde;
+            }
+          }
+          if(tables[i].dabartinisLenkimoGrupesID.dalyvio2_ID){
+            let tempplayer = await PlayerTable.findByPk(tables[i].dabartinisLenkimoGrupesID.dalyvio2_ID);
+            if(tempplayer && tempplayer.roles_ID){
+                let tempRole = await Role.findByPk(tempplayer.roles_ID);
+                tables[i].dabartinisLenkimoGrupesID.dalyvio2N = tempRole.vardas+ " " + tempRole.pavarde;
+            }
+          }
+
+        }
+        for(let j=0;j<tables[i].lenkimo_id.length;j++){
+          let matchtemp2= await MatchService.getMatchById(tables[i].lenkimo_id[j]);
+          if(matchtemp!==null){
+            tables[i].lenkimo_id[j] = matchtemp2.dataValues;
+            if(tables[i].lenkimo_id[j].dalyvio_ID){
+              let tempplayer = await PlayerTable.findByPk(tables[i].lenkimo_id[j].dalyvio_ID);
+              if(tempplayer && tempplayer.roles_ID){
+                  let tempRole = await Role.findByPk(tempplayer.roles_ID);
+                  tables[i].lenkimo_id[j].dalyvioN = tempRole.vardas+ " " + tempRole.pavarde;
+              }
+            }
+            if(tables[i].lenkimo_id[j].dalyvio2_ID){
+              let tempplayer = await PlayerTable.findByPk(tables[i].lenkimo_id[j].dalyvio2_ID);
+              if(tempplayer && tempplayer.roles_ID){
+                  let tempRole = await Role.findByPk(tempplayer.roles_ID);
+                  tables[i].lenkimo_id[j].dalyvio2N = tempRole.vardas+ " " + tempRole.pavarde;
+              }
+            }
+          }
+        }
+      }
+    }
+    return tables;
+  }
 
 }
 

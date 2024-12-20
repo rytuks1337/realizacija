@@ -23,7 +23,7 @@ class MatchService{
   static async getMatchById(id) {
 
     const result = await Match.findByPk(id);
-    if(result.length===0){
+    if(!result){
       throw new ExtraError("Match not found", 404);
     }
     return result;
@@ -80,6 +80,24 @@ class MatchService{
         }
     });
   };
+  static async getBracketNames(bracket){
+    for(let i=0; i<bracket.winB.length; i++){
+      for(let j=0; j<bracket.winB[i].length; j++){
+          if(bracket.winB[i][j].changed()){
+              await bracket.winB[i][j].save();
+          }
+          bracket.winB[i][j] = bracket.winB[i][j].id;
+      }
+  }
+  for(let i=0; i<bracket.losB.length; i++){
+      for(let j=0; j<bracket.losB[i].length; j++){
+          if(bracket.losB[i][j].changed()){
+              await bracket.losB[i][j].save();
+          }
+          bracket.losB[i][j] =  bracket.losB[i][j].id
+      }
+  }
+  }
 };
 
 

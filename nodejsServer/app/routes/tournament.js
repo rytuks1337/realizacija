@@ -25,11 +25,14 @@ router.get('/:tournament_id/state', TournamentController.getTournamentStatus); /
 router.get('/:tournament_id/test', RoleController.test);
 router.get('/:group_id/table', TournamentController.getTournamentTable); // Get tournament table of a specific group
 
+router.get('/:tournament_id/tables', TournamentController.getTournamentQueueTables)
+
 // Pasirinkto turnyro rolių CRUD
 router.post('/:tournament_id/role', authenticateToken, authorizeRole(["Owner", "Organizer"]), playerValidation, RoleController.createRole);
 router.get('/:tournament_id/role/:id', RoleController.getRoleByUserId);
 router.put('/:tournament_id/role/:id', authenticateToken, authorizeRole(["Owner", "Organizer"]),playerValidationEdit, RoleController.updateRole);
 router.delete('/:tournament_id/role/:id', authenticateToken, authorizeRole(["Owner", "Organizer"]),  RoleController.deleteRole);
+
 //
 
 async function processFile(req, res, next){

@@ -8,7 +8,8 @@ const __dirname = path.dirname(__filename);
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, '../uploads')); // Save files in the 'uploads' directory
+        console.log(path.join(__dirname, '../uploads/'));
+        cb(null, path.join(__dirname, '../uploads/')); // Save files in the 'uploads' directory
     },
     filename: (req, file, cb) => {
         const randomString = Math.random().toString(36).substring(2, 15);

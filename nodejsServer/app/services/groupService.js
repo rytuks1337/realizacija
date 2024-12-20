@@ -152,6 +152,7 @@ class GroupService{
   static async deletePogrupiai(id) {
 
   }
+
   static async getGroupByID(id) {
     return Group.findByPk(id);
   }
