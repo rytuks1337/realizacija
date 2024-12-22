@@ -156,7 +156,7 @@ class BracketService{
                     let bracket = await this.createBracket(table[index][indexj],thisGroup,stageTable); // Create bracket
                     await GroupService.addMatch(thisGroup,bracket);
                     await GroupService.updatePogrupiai(thisGroup,{bracket: bracket});
-                    if(bracket.winB.length===0){
+                    if(bracket.winB.length!=0){
                         await TableService.addGroup(stageTable,thisGroup,table[index][indexj]);
                     }
                     await this.updateRound(thisGroup);
@@ -284,7 +284,7 @@ class BracketService{
     }
     static async generateBracketObj(group){
         let bracketOfId = group.bracket;
-        const groupsMatches = await MatchService.generateMatchesForBrackets(group.id);
+        const groupsMatches = await MatchService.getMatchesForBrackets(group.id);
         for(let i=0; i<bracketOfId.winB.length; i++){
             for(let j=0; j<bracketOfId.winB[i].length; j++){
                 bracketOfId.winB[i][j] = getMatchFromArray(groupsMatches, bracketOfId.winB[i][j]);
@@ -299,7 +299,7 @@ class BracketService{
     }
     static async generateBracketObjNames(group){
         let bracketOfId = group.bracket;
-        const groupsMatches = await MatchService.generateMatchesForBrackets(group.id);
+        const groupsMatches = await MatchService.getMatchesForBrackets(group.id);
         for(let i=0; i<bracketOfId.winB.length; i++){
             for(let j=0; j<bracketOfId.winB[i].length; j++){
                 bracketOfId.winB[i][j] = getMatchFromArray(groupsMatches, bracketOfId.winB[i][j]);

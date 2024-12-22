@@ -73,7 +73,7 @@ class MatchService{
       });
       return result;
   }
-  static async generateMatchesForBrackets(group_ID) {
+  static async getMatchesForBrackets(group_ID) {
     return await Match.findAll({
         where:{
           grupes_ID: group_ID

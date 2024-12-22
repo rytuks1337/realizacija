@@ -6,6 +6,7 @@ import GroupService from './groupService.js';
 import MatchService from './matchService.js';
 import PlayerTable from '../models/playerTableModel.js';
 import Role from '../models/roleModel.js';
+import RoleService from './roleService.js';
 
 class TableService{
 
@@ -107,6 +108,7 @@ class TableService{
     }
     await currentTable.save();
   };
+  
   static async getQueueTables(tournament_id){
     let tables = await this.getAllTablesOfTournament(tournament_id);
     if(tables === null){
@@ -115,43 +117,27 @@ class TableService{
     for(let i=0;i<tables.length;i++){
       if(tables[i].dabartinisLenkimoGrupesID!==null){
         tables[i]=tables[i].dataValues;
-        let matchtemp= await MatchService.getMatchById(tables[i].dabartinisLenkimoGrupesID);
-        if(matchtemp!==null){
-          tables[i].dabartinisLenkimoGrupesID = matchtemp.dataValues;
-          if(tables[i].dabartinisLenkimoGrupesID.dalyvio_ID){
-            let tempplayer = await PlayerTable.findByPk(tables[i].dabartinisLenkimoGrupesID.dalyvio_ID);
-            if(tempplayer && tempplayer.roles_ID){
-                let tempRole = await Role.findByPk(tempplayer.roles_ID);
-                tables[i].dabartinisLenkimoGrupesID.dalyvioN = tempRole.vardas+ " " + tempRole.pavarde;
-            }
-          }
-          if(tables[i].dabartinisLenkimoGrupesID.dalyvio2_ID){
-            let tempplayer = await PlayerTable.findByPk(tables[i].dabartinisLenkimoGrupesID.dalyvio2_ID);
-            if(tempplayer && tempplayer.roles_ID){
-                let tempRole = await Role.findByPk(tempplayer.roles_ID);
-                tables[i].dabartinisLenkimoGrupesID.dalyvio2N = tempRole.vardas+ " " + tempRole.pavarde;
-            }
-          }
-
-        }
-        for(let j=0;j<tables[i].lenkimo_id.length;j++){
-          let matchtemp2= await MatchService.getMatchById(tables[i].lenkimo_id[j]);
-          if(matchtemp!==null){
-            tables[i].lenkimo_id[j] = matchtemp2.dataValues;
-            if(tables[i].lenkimo_id[j].dalyvio_ID){
-              let tempplayer = await PlayerTable.findByPk(tables[i].lenkimo_id[j].dalyvio_ID);
-              if(tempplayer && tempplayer.roles_ID){
-                  let tempRole = await Role.findByPk(tempplayer.roles_ID);
-                  tables[i].lenkimo_id[j].dalyvioN = tempRole.vardas+ " " + tempRole.pavarde;
+        let grouptemp= await GroupService.getGroupByID(tables[i].dabartinisLenkimoGrupesID);
+        if(grouptemp!==null){
+          tables[i].dabartinisLenkimoGrupesID = grouptemp.dataValues;
+          if(tables[i].dabartinisLenkimoGrupesID.lenkimo_tvarka){
+            let queue=[]
+            for(let j=0;j<tables[i].dabartinisLenkimoGrupesID.lenkimo_tvarka.length;j++){
+              let matchtemp = await MatchService.getMatchById(tables[i].dabartinisLenkimoGrupesID.lenkimo_tvarka[j]);
+              matchtemp=matchtemp.dataValues;
+              if(matchtemp.dalyvio_ID && matchtemp.dalyvio2_ID && !matchtemp.laimetojoDalyvio_ID){
+                let name1 = await PlayerTable.findByPk(matchtemp.dalyvio_ID);
+                name1 = await RoleService.getRoleByUserId(name1.roles_ID);
+                name1 = name1.vardas +" "+ name1.pavarde;
+                let name2 = await PlayerTable.findByPk(matchtemp.dalyvio2_ID);
+                name2 = await RoleService.getRoleByUserId(name2.roles_ID);
+                name2= name2.vardas +" "+ name2.pavarde;
+                matchtemp.dalyvio_name= name1;
+                matchtemp.dalyvio2_name= name2;
+                queue.push(matchtemp);
               }
             }
-            if(tables[i].lenkimo_id[j].dalyvio2_ID){
-              let tempplayer = await PlayerTable.findByPk(tables[i].lenkimo_id[j].dalyvio2_ID);
-              if(tempplayer && tempplayer.roles_ID){
-                  let tempRole = await Role.findByPk(tempplayer.roles_ID);
-                  tables[i].lenkimo_id[j].dalyvio2N = tempRole.vardas+ " " + tempRole.pavarde;
-              }
-            }
+            tables[i].dabartinisLenkimoGrupesID.lenkimo_tvarka = queue;
           }
         }
       }

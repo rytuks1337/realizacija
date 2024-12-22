@@ -138,13 +138,13 @@ class TournamentController{
     }
   };
   static async getTournamentQueueTables(req, res){
-    const { tournament_id} = req.params;
-    try {
+    const { tournament_id } = req.params;
+    // try {
       const tables = await TableService.getQueueTables(tournament_id);
       res.status(200).json(tables);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+    // } catch (error) {
+    //   res.status(500).json({ error: error.message });
+    // }
 
   };
 

@@ -43,7 +43,7 @@ class RoleService {
       }
       return role;
     }else{
-      const test = await this.getRoleByUserId(tournament_id, user_id, data.role);
+      const test = await this.getRoleByUserIdAndRole(tournament_id, user_id, data.role);
       //Checking if role already exists
       if(test.length>0){
         throw new ExtraError("User already registered for this role", 409); 
@@ -159,7 +159,7 @@ class RoleService {
       }
     });
   }
-  static async getRoleByUserId(tournament_idData, userId, role) {
+  static async getRoleByUserIdAndRole(tournament_idData, userId, role) {
 
     return await Role.findAll({
       where : {
@@ -169,6 +169,12 @@ class RoleService {
       }
     });
   }
+
+  static async getRoleByUserId(userId) {
+
+    return await Role.findByPk(userId);
+  }
+
   static async getAllTournamentReferees(tournament_id){
     return await Role.findAll({
       where : {

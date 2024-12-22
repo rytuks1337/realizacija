@@ -36,15 +36,15 @@ router.delete('/:tournament_id/role/:id', authenticateToken, authorizeRole(["Own
 //
 
 async function processFile(req, res, next){
-    try {
-        // Parse JSON form data.
-        req.filepath=`uploads/${req.file.filename}`;
-        // Pass on the data as body.
-        req.body = JSON.parse(req.body.data);
-        next();
-      } catch (error) {
-        res.status(400).json({ error: 'Invalid JSON format in "data" field.' });
-      }
+  try {
+      // Parse JSON form data.
+      req.filepath=`uploads/${req.file.filename}`;
+      // Pass on the data as body.
+      req.body = JSON.parse(req.body.data);
+      next();
+    } catch (error) {
+      res.status(400).json({ error: 'Invalid JSON format in "data" field.' });
+    }
 }
 
 
