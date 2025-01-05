@@ -1,33 +1,24 @@
 import { body, param } from 'express-validator';
 import { validationCheck } from '../utils/validatorHelper.js';
 
-const matchValidation = [
-  body('dalyvio_ID')
-    .isEmpty().withMessage("Must not be emty")
+const matchUpdateValidation = [
+  body('laimetojas')
+    .notEmpty().withMessage("Must not be empty")
     .isInt({min:0}).withMessage('Participant 1 ID is invalid'),
-  body('dalyvio2_ID')
-    .isEmpty().withMessage("Must not be emty")
-    .isInt({min:0}).withMessage('Participant 2 ID is invalid'),
-  body('laimetojoDalyvio_ID')
-    .optional().isInt({min:0}).withMessage('Winner ID is invalid'),
-  body('teisejasDalyvio_ID')
-    .isEmpty().withMessage("Must not be emty")
-    .isInt({min:0}).withMessage('Referee ID is invalid'),
-  body('varzybu_ID')
-    .isEmpty().withMessage("Must not be emty")
-    .isInt({min:0}).withMessage('Tournament ID is invalid'),
-  body('pogrupis_ID')
-    .isEmpty().withMessage("Must not be emty")
-    .isInt({min:0}).withMessage('Group ID is invalid'),
   validationCheck
 ];
 
-const logActionValidation = [
-  body('matchID')
-    .isInt().withMessage('Match ID is invalid'),
-  body('action')
-    .notEmpty().withMessage('Action is required'),
+const foulAddValidation = [
+  body('dalyvis_ID')
+    .isInt().withMessage('Valid paricipant ID must be specified'),
+  body('praz_tipas')
+    .notEmpty().withMessage('Foul must be specified')
+    .custom((value) =>{
+        if(value === 'Elbow' || value === 'Hand' || value === 'FStart'){
+          return true;
+        }else return false;
+      }),
   validationCheck
 ];
 
-module.exports = { matchValidation, logActionValidation };
+export { matchUpdateValidation, foulAddValidation };

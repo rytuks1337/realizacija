@@ -33,33 +33,32 @@ class GroupService{
 
     var orderOfMatches=[];
     let lostround=0;
-    console.log(rounds);
     for(let i=0;i<rounds.winB.length;i++){
 
-        if(i<rounds.winB.length){
-            for(let j=0;j<rounds.winB[i].length;j++){
-                orderOfMatches.push(rounds.winB[i][j]);
+      for(let j=0;j<rounds.winB[i].length;j++){
+        orderOfMatches.push(rounds.winB[i][j]);
+      }
+      if(lostround!==rounds.losB.length){
+        if(lostround!==0){
+
+          for(let j=0;j<rounds.losB[lostround].length;j++){
+              orderOfMatches.push(rounds.losB[lostround][j]);
+          }
+          lostround = lostround+1;
+          if(lostround!==rounds.losB.length){
+            for(let j=0;j<rounds.losB[lostround].length;j++){
+              orderOfMatches.push(rounds.losB[lostround][j]);
             }
-        }
-        if(i===0){
-          if(i<rounds.losB.length){
-              for(let j=0;j<rounds.losB[i].length;j++){
-                  orderOfMatches.push(rounds.losB[i][j]);
-              }
-              lostround = lostround+1;
+            lostround = lostround+1;
           }
-        }else if(rounds.losB[lostround+1]){
+        }else{
 
           for(let j=0;j<rounds.losB[lostround].length;j++){
               orderOfMatches.push(rounds.losB[lostround][j]);
           }
           lostround = lostround+1;
-          for(let j=0;j<rounds.losB[lostround].length;j++){
-              orderOfMatches.push(rounds.losB[lostround][j]);
-          }
-          lostround = lostround+1;
-
         }
+      }
     }
     await currentTable.update({lenkimo_tvarka: orderOfMatches});
   }
@@ -128,7 +127,7 @@ class GroupService{
   }
   // Get Groups of a selected tournament
   static async getAllGroupsbyTournament(tournament_id) {
-    return Group.findAll({
+    return await Group.findAll({
       where:{
         turnyro_ID: tournament_id
       },
@@ -148,13 +147,36 @@ class GroupService{
       ]
     });
   }
+  static async getAllUniqueGroupsofTournament(tournament_id) {
+    return await Group.findAll({
+      where:{
+        turnyro_ID: tournament_id
+      },
+      order: [
+        ['pavadinimas', 'ASC'], 
+        ['lytis', 'ASC'],
+        ['ranka', 'ASC'],
+        [sequelize.literal(`
+            CASE 
+                WHEN svoris LIKE '+%' THEN 9999 -- Push "+xxx" values to the bottom
+                WHEN svoris LIKE 'A%' THEN 9999
+                ELSE CAST(svoris AS INTEGER)   -- Convert other weights to numbers for sorting
+            END
+          `),
+        'ASC'
+        ]   // Lastly by Weight in ascending order
+      ],
+      attributes:['id','pavadinimas','svoris','amzius','lytis','ranka']
+    });
+  }
+
   // Delete pogrupis
   static async deletePogrupiai(id) {
 
   }
 
   static async getGroupByID(id) {
-    return Group.findByPk(id);
+    return await Group.findByPk(id);
   }
   
   static async getDistributedGroupsOfTournament(tournament_id){

@@ -32,19 +32,31 @@ class MatchService{
   static async updateMatch(data,matchID) {
 
     const result = await this.getMatchById(matchID);
-    const group = await GroupService.getGroupByID(result.group);
-    result.laimetojoDalyvio_ID = data.winner;
-    result.pralaimetoDalyvio_ID = data.loser;
 
-    let playerW = await PlayerTable.findByPk(data.winner);
-    let playerL = await PlayerTable.findByPk(data.loser);
+    if(result.dalyvio_ID===data.laimetojas){
+      result.laimetojoDalyvio_ID = data.laimetojas;
+      result.pralaimetoDalyvio_ID = result.dalyvio2_ID;
+    }else if(result.dalyvio2_ID===data.laimetojas){
+      result.laimetojoDalyvio_ID = data.laimetojas;
+      result.pralaimetoDalyvio_ID = result.dalyvio_ID;
+    }else{
+      throw new ExtraError("Participant not found",404);
+    }
+
+    let playerW = await PlayerTable.findByPk(result.laimetojoDalyvio_ID);
+    let playerL = await PlayerTable.findByPk(result.pralaimetoDalyvio_ID);
     playerW.laimejimai=playerW.laimejimai+1;
     playerL.pralaimejimai=playerL.pralaimejimai+1;
 
     await playerW.save();
     await playerL.save();
     await result.save();
-    await BracketService.updateRound(group);
+    const group = await GroupService.getGroupByID(result.grupes_ID);
+    let resultBracket = await BracketService.updateRound(group);
+    if(resultBracket!==null){
+      await TableService.updateTable(resultBracket.table_ID,resultBracket.delgroup);
+    }
+
 
     return result;
   }
@@ -52,7 +64,7 @@ class MatchService{
 
   // Update match
   static async updateMatchStatus(match) {
-    const validStates = ['INIT', 'SETUP', 'IN_PROCCESS', 'FINISHED'];
+    const validStates = ['CREATED', 'IN_PROCCESS', 'FINISHED'];
 
     const currentStateIndex = validStates.indexOf(match.status);
     if (currentStateIndex === -1 || currentStateIndex === validStates.length - 1) {

@@ -5,6 +5,8 @@ import RoleController from '../controllers/roleController.js';
 import { createTournamentValidation, pageParamValidation } from '../validators/tournamentValidator.js';
 import { authenticateToken, authorizeRole } from '../middleware/authMiddleware.js';
 import { playerValidation, playerValidationEdit } from '../validators/playerValidator.js';
+import MatchController from '../controllers/matchController.js';
+import {matchUpdateValidation,foulAddValidation} from '../validators/matchValidator.js';
 import storage from '../config/upload.js';
 import multer from 'multer';
 const router = express.Router();
@@ -33,6 +35,9 @@ router.get('/:tournament_id/role/:id', RoleController.getRoleByUserId);
 router.put('/:tournament_id/role/:id', authenticateToken, authorizeRole(["Owner", "Organizer"]),playerValidationEdit, RoleController.updateRole);
 router.delete('/:tournament_id/role/:id', authenticateToken, authorizeRole(["Owner", "Organizer"]),  RoleController.deleteRole);
 
+
+// PUT update match
+router.put('/:tournament_id/match/:id', authenticateToken, authorizeRole('Judge'), matchUpdateValidation, MatchController.updateMatch);
 //
 
 async function processFile(req, res, next){

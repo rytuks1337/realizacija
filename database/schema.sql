@@ -1,6 +1,6 @@
 -- Define ENUM type
 CREATE TYPE vartotojo_tipas AS ENUM ('Judge', 'Participant', 'Organizer', 'Owner');
-CREATE TYPE prazangos_tipas AS ENUM ('Elbow', 'Hand', 'FStart', 'ISlip');
+CREATE TYPE prazangos_tipas AS ENUM ('Elbow', 'Hand', 'FStart');
 CREATE TYPE ranka_tipas AS ENUM ('K', 'D');
 CREATE TYPE lytis_tipas AS ENUM ('V', 'M');
 CREATE TYPE status_tipasA AS ENUM ('INIT', 'SETUP', 'REGISTER', 'IN_PROCCESS', 'FINISHED');

@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db.js');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
 const Foul = sequelize.define('prazangos', {
   id: {
@@ -16,7 +16,7 @@ const Foul = sequelize.define('prazangos', {
     allowNull: false,
   },
   prazangos_tipas: {
-    type: DataTypes.ENUM('Elbow', 'Hand', 'FStart', 'Slip'),
+    type: DataTypes.ENUM('Elbow', 'Hand', 'FStart'),
     allowNull: false,
   },
 
@@ -25,4 +25,4 @@ const Foul = sequelize.define('prazangos', {
   timestamps: true,
 });
 
-module.exports = Foul;
+export default Foul;

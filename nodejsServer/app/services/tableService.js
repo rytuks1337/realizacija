@@ -97,15 +97,34 @@ class TableService{
   static async removeMatch(table_ID, match_id) {
     var currentTable = await Stalas.findByPk(table_ID);
     if(currentTable.length===0){
-      throw ExtraError("Table not found", 404);
+      throw new ExtraError("Table not found", 404);
     }
     if(currentTable.lenkimo_id.includes(match_id)){
       const index = currentTable.lenkimo_id.indexOf(value);
       currentTable.lenkimo_id.splice(index, 1);
 
     }else{
-      throw ExtraError("Match not specified", 500);
+      throw new ExtraError("Match not specified", 500);
     }
+    await currentTable.save();
+  };
+
+  static async updateTable(table_ID,delete_group_id) {
+    let currentTable = await this.getTableByID(table_ID);
+    let tempArray = currentTable.lenkimo_id
+    ? [...currentTable.lenkimo_id]
+    : [];
+    if(currentTable===null){
+      throw new ExtraError("Table not found", 404);
+    }
+    let index=tempArray.indexOf(delete_group_id);
+    if(delete_group_id===currentTable.dabartinisLenkimoGrupesID){
+
+      currentTable.dabartinisLenkimoGrupesID=tempArray.splice(index, 1);
+    }else{
+      tempArray.splice(index, 1);
+    }
+    await currentTable.update({lenkimo_id: tempArray});
     await currentTable.save();
   };
   

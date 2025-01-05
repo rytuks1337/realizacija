@@ -2,9 +2,8 @@ import express from 'express';
 import winston from 'winston';
 import tournamentRoutes from './routes/tournament.js';
 import authRoutes from './routes/auth.js';
-// //const matchRoutes = require('./routes/match.js');
+import matchRoutes from './routes/match.js';
 // //const playerRoutes = require('./routes/player.js');
-// //const refRoutes = require('./routes/referee.js');
 import refRoutes from './routes/referee.js';
 import userRoutes from './routes/users.js';
 
@@ -32,7 +31,7 @@ app.use('/api/user', userRoutes); //getUser
 
 app.use('/api/tournament', tournamentRoutes);
 app.use('/api/tournament/', groupRoutes);
-//app.use('/api/match', matchRoutes);
+app.use('/api/match', matchRoutes);
 //app.use('/api/player', playerRoutes);
 app.use('/api/referee', refRoutes);
 //app.use('/api/categories', pogrupRoutes);

@@ -14,7 +14,9 @@ const router = express.Router();
 // POST create new group
 router.post('/:tournament_id/groups', authenticateToken, authorizeRole(['Organizer', 'Owner']), createGrouptValidation, GroupController.createGroupsForTournament);
 
-router.get('/:tournament_id/groups', GroupController.getAllGroupsbyTournament);
+router.get('/:tournament_id/groups', GroupController.getAllUniqueGroupsofTournament);
+
+
 
 router.get('/:tournament_id/:group_id/brackets', GroupController.getGroupBracket);
 

@@ -5,10 +5,10 @@ import MatchService from "../services/matchService.js";
 
 
 class GroupController{
-  static async getAllGroupsbyTournament(req, res) {
+  static async getAllUniqueGroupsofTournament(req, res) {
     const { tournament_id } = req.params;
     try {
-      let result = await GroupService.getAllGroupsbyTournament(tournament_id);
+      let result = await GroupService.getAllUniqueGroupsofTournament(tournament_id);
       for(let i=0;i<result.length;i++){
         if(result[i].lytis==="V"){
           result[i].lytis= "Vyrai";
@@ -31,14 +31,14 @@ class GroupController{
   static async getGroupBracket(req, res) {
     const {group_id} = req.params;
     
-    // try {
+    try {
       let group = await GroupService.getGroupByID(group_id);
       let bracket = await BracketService.generateBracketObjNames(group);
 
       res.status(201).json({"losB":bracket.losB,"winB":bracket.winB});
-    // } catch (error) {
-    //   return res.status(500).json({ error: error.message });
-    // }
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
   }
 
   static async createGroupsForTournament(req, res){
