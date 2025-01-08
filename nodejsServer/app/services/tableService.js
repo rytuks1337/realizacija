@@ -7,6 +7,7 @@ import MatchService from './matchService.js';
 import PlayerTable from '../models/playerTableModel.js';
 import Role from '../models/roleModel.js';
 import RoleService from './roleService.js';
+import { match } from 'assert';
 
 class TableService{
 
@@ -136,13 +137,16 @@ class TableService{
     for(let i=0;i<tables.length;i++){
       if(tables[i].dabartinisLenkimoGrupesID!==null){
         tables[i]=tables[i].dataValues;
-        let grouptemp= await GroupService.getGroupByID(tables[i].dabartinisLenkimoGrupesID);
+        let grouptemp= await GroupService.getGroupByIDSmall(tables[i].dabartinisLenkimoGrupesID);
         if(grouptemp!==null){
           tables[i].dabartinisLenkimoGrupesID = grouptemp.dataValues;
           if(tables[i].dabartinisLenkimoGrupesID.lenkimo_tvarka){
             let queue=[]
             for(let j=0;j<tables[i].dabartinisLenkimoGrupesID.lenkimo_tvarka.length;j++){
               let matchtemp = await MatchService.getMatchById(tables[i].dabartinisLenkimoGrupesID.lenkimo_tvarka[j]);
+              if(matchtemp.status !== 'IN_PROCCESS' || matchtemp.round !==1){
+                continue;
+              }
               matchtemp=matchtemp.dataValues;
               if(matchtemp.dalyvio_ID && matchtemp.dalyvio2_ID && !matchtemp.laimetojoDalyvio_ID){
                 let name1 = await PlayerTable.findByPk(matchtemp.dalyvio_ID);
@@ -163,6 +167,7 @@ class TableService{
     }
     return tables;
   }
+
 
 }
 

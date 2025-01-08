@@ -176,7 +176,31 @@ class GroupService{
   }
 
   static async getGroupByID(id) {
-    return await Group.findByPk(id);
+    try {
+      return await Group.findByPk(id);
+    } catch (error) {
+      return null;
+    }
+    
+  }
+  static async getGroupByIDSmall(ID) {
+    try {
+      let groups = [];
+      groups = await Group.findAll({
+        where:{
+          id: ID
+        },
+        attributes: ['id','turnyro_ID', 'pavadinimas', 'svoris', 'amzius', 'lytis', 'ranka', 'lenkimo_tvarka', 'raundas']
+      });
+      if(groups.length===0){
+        return null
+      }
+      return groups[0];
+
+    } catch (error) {
+      return null;
+    }
+    
   }
   
   static async getDistributedGroupsOfTournament(tournament_id){

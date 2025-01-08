@@ -19,6 +19,12 @@ class TournamentService {
     const status = await Tournament.findByPk(tournament_id);
     return status.status;
   }
+
+  static async startTournament(tournament_id){
+    const tournament = await Tournament.findByPk(tournament_id);
+    tournament.status = 'IN_PROCCESS';
+    tournament.save();
+  }
   
   static async findTournamentById(id){
     return await Tournament.findByPk(id);

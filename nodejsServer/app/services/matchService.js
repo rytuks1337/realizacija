@@ -11,9 +11,9 @@ import Group from "../models/groupModel.js";
 class MatchService{
   // Create match
   static async createMatch(match, grupeObj) {
-    const {dalyvio_ID, dalyvio2_ID, laimetojoDalyvio_ID,pralaimetoDalyvio_ID, teisejai_ID, grupes_ID, roundNum} = match;
+    const {dalyvio_ID, dalyvio2_ID, laimetojoDalyvio_ID,pralaimetoDalyvio_ID, teisejai_ID, grupes_ID, roundNum, status} = match;
 
-    const result = await Match.create({dalyvio_ID, dalyvio2_ID, laimetojoDalyvio_ID,pralaimetoDalyvio_ID, teisejai_ID, grupes_ID, status: 'CREATED', round: roundNum});
+    const result = await Match.create({dalyvio_ID, dalyvio2_ID, laimetojoDalyvio_ID,pralaimetoDalyvio_ID, teisejai_ID, grupes_ID, status: status, round: roundNum});
 
     return result;
   };
@@ -29,18 +29,29 @@ class MatchService{
     return result;
 
   }
-  static async updateMatch(data,matchID) {
+
+  static async updateMatch(data,matchID, tournament_id) {
 
     const result = await this.getMatchById(matchID);
+    const group = await GroupService.getGroupByID(result.grupes_ID);
+    if(group === null|| group === undefined)
+    {
+      throw new ExtraError("Nerasta kategorija",404);
+    }
+    if(group.turnyro_ID.toString() !== tournament_id){
+      throw new ExtraError("Kova nesusijusi su varžybomis",404);
+    }
 
     if(result.dalyvio_ID===data.laimetojas){
       result.laimetojoDalyvio_ID = data.laimetojas;
       result.pralaimetoDalyvio_ID = result.dalyvio2_ID;
+      result.status='FINISHED';
     }else if(result.dalyvio2_ID===data.laimetojas){
       result.laimetojoDalyvio_ID = data.laimetojas;
       result.pralaimetoDalyvio_ID = result.dalyvio_ID;
+      result.status='FINISHED';
     }else{
-      throw new ExtraError("Participant not found",404);
+      throw new ExtraError("Žaidėjas nerastas",404);
     }
 
     let playerW = await PlayerTable.findByPk(result.laimetojoDalyvio_ID);
@@ -51,7 +62,7 @@ class MatchService{
     await playerW.save();
     await playerL.save();
     await result.save();
-    const group = await GroupService.getGroupByID(result.grupes_ID);
+  
     let resultBracket = await BracketService.updateRound(group);
     if(resultBracket!==null){
       await TableService.updateTable(resultBracket.table_ID,resultBracket.delgroup);
@@ -68,7 +79,7 @@ class MatchService{
 
     const currentStateIndex = validStates.indexOf(match.status);
     if (currentStateIndex === -1 || currentStateIndex === validStates.length - 1) {
-      throw new ExtraError("Invalid current state or state is already FINISHED", 400);
+      throw new ExtraError("Klaidinga stadija, arba jau pasibaigusios varžybos", 400);
     }
     const newStatus = validStates[currentStateIndex + 1];
     match.status = newStatus;

@@ -78,7 +78,7 @@ class BracketService{
                 
                 let match = new Match(dalyvio_ID1,dalyvio_ID2,null,null);
                 
-                const realMatch = await MatchService.createMatch({dalyvio_ID: match.dalyvio_ID, dalyvio2_ID: match.dalyvio2_ID , laimetojoDalyvio_ID: match.laimetojoDalyvio_ID,pralaimetoDalyvio_ID: match.pralaimetoDalyvio_ID, teisejai_ID: stageTable.teiseju_id, grupes_ID: grupes_id,roundNum: round},thisGroup);
+                const realMatch = await MatchService.createMatch({dalyvio_ID: match.dalyvio_ID, dalyvio2_ID: match.dalyvio2_ID , laimetojoDalyvio_ID: match.laimetojoDalyvio_ID,pralaimetoDalyvio_ID: match.pralaimetoDalyvio_ID, teisejai_ID: stageTable.teiseju_id, grupes_ID: grupes_id,roundNum: round, status: 'IN_PROCCESS'},thisGroup);
 
                 nextRound.push(realMatch.id);
             }
@@ -96,7 +96,7 @@ class BracketService{
                 
                 //let match = new Match(null,null,null,null);
                 
-                const realMatch = await MatchService.createMatch({dalyvio_ID: null, dalyvio2_ID: null , laimetojoDalyvio_ID:null,pralaimetoDalyvio_ID: null, teisejai_ID: stageTable.teiseju_id, grupes_ID: grupes_id,roundNum: round},thisGroup);
+                const realMatch = await MatchService.createMatch({dalyvio_ID: null, dalyvio2_ID: null , laimetojoDalyvio_ID:null,pralaimetoDalyvio_ID: null, teisejai_ID: stageTable.teiseju_id, grupes_ID: grupes_id,roundNum: round, status: 'CREATED'},thisGroup);
 
                 nextRound.push(realMatch.id);
             }
@@ -109,7 +109,7 @@ class BracketService{
         }
         if(currentRound.length===1 && round===1){
             let nextRound = [];
-            const realMatch = await MatchService.createMatch({dalyvio_ID: currentRound[0].id, dalyvio2_ID: null , laimetojoDalyvio_ID:currentRound[0].id, pralaimetoDalyvio_ID: null, teisejai_ID: stageTable.teiseju_id, grupes_ID: grupes_id,roundNum: 1},thisGroup);
+            const realMatch = await MatchService.createMatch({dalyvio_ID: currentRound[0].id, dalyvio2_ID: null , laimetojoDalyvio_ID:currentRound[0].id, pralaimetoDalyvio_ID: null, teisejai_ID: stageTable.teiseju_id, grupes_ID: grupes_id,roundNum: 1, status: 'CREATED'},thisGroup);
             nextRound.push(realMatch.id);
             rounds.winB.push(nextRound);
             return rounds;
@@ -117,7 +117,7 @@ class BracketService{
         if (currentRound.length > 0) {
             for(let i=0;i<2;i++){//add 2 extra rounds for finals and finals rematch
                 let nextRound = [];
-                const realMatch = await MatchService.createMatch({dalyvio_ID: null, dalyvio2_ID: null , laimetojoDalyvio_ID:null,pralaimetoDalyvio_ID: null, teisejai_ID: stageTable.teiseju_id, grupes_ID: grupes_id,roundNum: round},thisGroup);
+                const realMatch = await MatchService.createMatch({dalyvio_ID: null, dalyvio2_ID: null , laimetojoDalyvio_ID:null,pralaimetoDalyvio_ID: null, teisejai_ID: stageTable.teiseju_id, grupes_ID: grupes_id,roundNum: round, status: 'CREATED'},thisGroup);
                 nextRound.push(realMatch.id);
                 rounds.winB.push(nextRound);
                 round=round+1;
@@ -126,11 +126,12 @@ class BracketService{
 
 
         round = 1;
-        for (let a = 0; a<calculateLosersRounds(nextPowerOfTwo); a++) {//Ammount of rounds in losers bracket
+        let changedStatus='IN_PROCCESS';
+        for (let a = 0; a<calculateLosersRounds(nextPowerOfTwo); a++) { //Ammount of rounds in losers bracket
             let nextRound = [];
-            for (let i = 0; i < nextPowerOfTwo/(4*(Math.pow(2,Math.floor(a/2)))); i++) {//In case of 16 players, this will create 4 matches for first two rounds, 2 matches for third and fourth rounds, 1 match for fifth and sixth rounds.
+            for (let i = 0; i < nextPowerOfTwo/(4*(Math.pow(2,Math.floor(a/2)))); i++) { //In case of 16 players, this will create 4 matches for first two rounds, 2 matches for third and fourth rounds, 1 match for fifth and sixth rounds.
 
-                //let match = new Match(null, null, null, null);
+                
 
                 const realMatch = await MatchService.createMatch(
                     {
@@ -141,12 +142,14 @@ class BracketService{
                         teisejai_ID: stageTable.teiseju_id,
                         grupes_ID: grupes_id,
                         roundNum: round,
+                        status: changedStatus
                     },
                     thisGroup
                 );
 
                 nextRound.push(realMatch.id);
             }
+            changedStatus='CREATED'
 
             rounds.losB.push(nextRound);
             round += 1;
@@ -193,7 +196,7 @@ class BracketService{
             let roundDone=true;
             changedWin=false;
             changesLos=false;
-            let current_round_loser= getPossibleLastLoserRound(bracket.losB.length-1,current_round);
+            let current_round_loser = getPossibleLastLoserRound(bracket.losB.length-1,current_round);
             if(current_round===bracket.winB.length) break;
             
             for(let i = 0; i < bracket.winB[current_round].length;i++){
@@ -210,7 +213,7 @@ class BracketService{
                 }
                 //update winner bracket that the winner continues to the next rounds, and send loser to losers bracket
                 if(bracket.winB[current_round][i].laimetojoDalyvio_ID){// if current match is finished
-                    if(current_round<bracket.winB.length-2){
+                    if(current_round<bracket.winB.length-2 && bracket.losB.length!==0 ){
                         //add winner to next round
                         if(i%2===0 && !bracket.winB[current_round+1][Math.floor(i/2)].dalyvio_ID){
                             changedWin=true;
@@ -236,17 +239,18 @@ class BracketService{
                             changesLos=true;
                         }
                     }else{
-                        if(current_round===bracket.winB.length-2){
+                        if(current_round===bracket.winB.length-2 || current_round===bracket.winB.length-3){
 
                             let playerLoseCount = await PlayerTable.findByPk(bracket.winB[current_round][0].pralaimetoDalyvio_ID);
 
                             if(playerLoseCount.pralaimejimai<2){
-                                bracket.winB[current_round+1][0].dalyvio_ID = bracket.winB[current_round][0].laimetojoDalyvio_ID
-                                bracket.winB[current_round+1][0].dalyvio2_ID = bracket.winB[current_round][0].pralaimetoDalyvio_ID;
+                                if(!bracket.winB[current_round+1][0].dalyvio_ID || !bracket.winB[current_round+1][0].dalyvio2_ID){
+                                    bracket.winB[current_round+1][0].dalyvio_ID = bracket.winB[current_round][0].laimetojoDalyvio_ID
+                                    bracket.winB[current_round+1][0].dalyvio2_ID = bracket.winB[current_round][0].pralaimetoDalyvio_ID;
+                                }
                             }
                         }
                     }
-    
                 }
             }
             if(bracket.losB.length>0){
@@ -324,58 +328,157 @@ class BracketService{
                         }
                     }
                 }
-        }
-            //Check if current round is not the last
+            }
+        
 
             for(let i=0;i<bracket.winB[current_round].length;i++){//check if every round of winners bracket is done;
                 if(!bracket.winB[current_round][i].laimetojoDalyvio_ID){
+                    if(bracket.winB[current_round][i].status === 'CREATED'){
+                        await this.progressMatch(bracket.winB[current_round][i].id, 'IN_PROCCESS');
+                    }
                     roundDone=false;
-                    break;
+                }else{
+                    if(bracket.winB[current_round][i].status !== 'FINISHED'){
+                        await this.progressMatch(bracket.winB[current_round][i].id, 'FINISHED');
+                    }
                 }
             }
 
-            if(current_round < bracket.winB.length-2){
+            if(current_round < bracket.winB.length-2 && bracket.losB.length>0){
                 for(let i=0;i<bracket.losB[current_round_loser].length;i++){// check if every round of losers bracket is done; there may be scenarios where the the fields are empty, they need to either be regarded as completed regradless.
                     if(current_round_loser%2===1){
-                        if(!bracket.losB[current_round_loser][i].laimetojoDalyvio_ID && ((bracket.losB[current_round_loser][i].dalyvio_ID || bracket.losB[current_round_loser][i].dalyvio2_ID) || !bracket.winB[current_round][i].laimetojoDalyvio_ID)){
-                            roundDone=false;
-                            break;
-                        }
-                        if(i%2===1){
-                            if(current_round_loser!==bracket.losB.length-1){
-                                if(!bracket.losB[current_round_loser+1][Math.floor(i/2)].laimetojoDalyvio_ID){
-                                    if(bracket.losB[current_round_loser][i-1].laimetojoDalyvio_ID || bracket.losB[current_round_loser][i].laimetojoDalyvio_ID){
-                                        roundDone=false;
-                                        break;
-                                    }else{
-                                        if(!bracket.winB[current_round][i-1].laimetojoDalyvio_ID || !bracket.winB[current_round][i].laimetojoDalyvio_ID){
-                                            roundDone=false;
-                                            break;
-                                        }
+                        if(i%2===0 || current_round_loser >= bracket.losB.length-2){
+                            if(!bracket.losB[current_round_loser][i].laimetojoDalyvio_ID){
+                                if ((bracket.losB[current_round_loser][i].dalyvio_ID || bracket.losB[current_round_loser][i].dalyvio2_ID) || !bracket.winB[current_round][i].laimetojoDalyvio_ID){
+                                    if(bracket.losB[current_round_loser][i].status === 'CREATED'){
+                                        await this.progressMatch(bracket.winB[current_round][i].id, 'IN_PROCCESS');
+                                    }
+                                    roundDone=false;
+                                }else{
+                                    if(bracket.losB[current_round_loser][i].status !== 'FINISHED'){
+                                        await this.progressMatch(bracket.winB[current_round][i].id, 'FINISHED');
                                     }
                                 }
+                            }
+                        }else if(i%2===1){
+                            if(current_round_loser<bracket.losB.length-2){
+                                if(!bracket.losB[current_round_loser+1][Math.floor(i/2)].laimetojoDalyvio_ID){
+                                    if(bracket.losB[current_round_loser][i-1].laimetojoDalyvio_ID){
+
+                                        if(bracket.losB[current_round_loser][i-1].status !== 'FINISHED'){
+                                            await this.progressMatch(bracket.losB[current_round_loser][i-1].id, 'FINISHED');
+                                        }
+
+                                        if(bracket.losB[current_round_loser][i].laimetojoDalyvio_ID){
+
+                                            if(bracket.losB[current_round_loser][i].status !== 'FINISHED'){
+                                                await this.progressMatch(bracket.losB[current_round_loser][i].id, 'FINISHED');
+                                            }
+                                            if(bracket.losB[current_round_loser+1][Math.floor(i/2)].status === 'CREATED'){
+                                                await this.progressMatch(bracket.losB[current_round_loser+1][Math.floor(i/2)].id,'IN_PROCCESS');
+                                            }
+
+                                            roundDone=false;
+                                        }else{
+                                            if(bracket.losB[current_round_loser][i].status === 'CREATED'){
+                                                await this.progressMatch(bracket.losB[current_round_loser][i].id, 'IN_PROCCESS');
+                                            }
+
+                                            if(!bracket.winB[current_round][i].laimetojoDalyvio_ID){
+
+                                                if(bracket.losB[current_round_loser+1][Math.floor(i/2)].status === 'CREATED'){
+                                                    await this.progressMatch(bracket.losB[current_round_loser+1][Math.floor(i/2)].id,'IN_PROCCESS');
+                                                }
+
+                                                roundDone=false;
+                                            }
+                                        }
+                                    }else{
+                                        if(bracket.losB[current_round_loser][i].laimetojoDalyvio_ID){
+
+                                            if(bracket.losB[current_round_loser][i].status !== 'FINISHED'){
+                                                await this.progressMatch(bracket.losB[current_round_loser][i].id, 'FINISHED');
+                                            }
+                                        }else{
+                                            if(bracket.losB[current_round_loser][i].status === 'CREATED'){
+                                                await this.progressMatch(bracket.losB[current_round_loser][i].id,'IN_PROCCESS');
+                                            }
+                                        }
+                                        if(bracket.losB[current_round_loser][i-1].status === 'CREATED'){
+                                            await this.progressMatch(bracket.losB[current_round_loser][i-1].id,'IN_PROCCESS');
+                                        }
+                                        if(!bracket.winB[current_round][i-1].laimetojoDalyvio_ID){
+
+                                            if(bracket.losB[current_round_loser+1][Math.floor(i/2)].status === 'CREATED'){
+                                                await this.progressMatch(bracket.losB[current_round_loser+1][Math.floor(i/2)].id,'IN_PROCCESS');
+                                            }
+
+                                            roundDone=false;
+                                        }
+                                    }
+                                }else{
+                                    if(bracket.losB[current_round_loser+1][Math.floor(i/2)].status !== 'FINISHED'){
+                                        await this.progressMatch(bracket.losB[current_round_loser+1][Math.floor(i/2)].id, 'FINISHED');
+                                    }
+                                }
+                            }else{
+
                             }
                         }
                         
                     }else{
                         if(!bracket.losB[current_round_loser][i].laimetojoDalyvio_ID) {
                             if((bracket.losB[current_round_loser][i].dalyvio_ID || bracket.losB[current_round_loser][i].dalyvio2_ID) || !(bracket.winB[current_round][i*2].laimetojoDalyvio_ID && bracket.winB[current_round][i*2+1].laimetojoDalyvio_ID)){
+                                if(bracket.losB[current_round_loser][i].status === 'CREATED'){
+                                    await this.progressMatch(bracket.losB[current_round_loser][i].id,'IN_PROCCESS');
+                                }
                                 roundDone=false;
-                                break;
+                               
+                            }else{
+                                if(bracket.losB[current_round_loser][i].status !== 'FINISHED'){
+                                    await this.progressMatch(bracket.losB[current_round_loser][i].id, 'FINISHED');
+                                }
                             }
                         }
                     }
                 }
             }
-            if(bracket.losB.length>0 && roundDone && changedWin===false && changesLos===false){
+            if(roundDone && changedWin===false && changesLos===false){
                 current_round = current_round+1;
                 changedWin=true;
-                changesLos=true;
-                if(current_round===bracket.winB.length){
+                if(bracket.losB.length>0){
+                    changesLos=true;
+                }
+                if(current_round===bracket.winB.length || bracket.winB[bracket.winB.length-1][0].status==='FINISHED' || (bracket.winB.length>3 && bracket.winB[bracket.winB.length-1][0].status==='IN_PROCCESS' && bracket.winB[bracket.winB.length-2][0].laimetojoDalyvio_ID===bracket.winB[bracket.winB.length-3][0].laimetojoDalyvio_ID)){
                     changedWin=false;
-                    changesLos=false;
+                    if(bracket.losB.length>0){
+                        changesLos=false;
+                    }
                 }
                 
+            }
+        }
+        let table_id;
+        let exit=false;
+        if(current_round===bracket.winB.length || bracket.winB[bracket.winB.length-1][0].status==='FINISHED' || (bracket.winB.length>3 && bracket.winB[bracket.winB.length-1][0].status==='IN_PROCCESS' && bracket.winB[bracket.winB.length-2][0].laimetojoDalyvio_ID===bracket.winB[bracket.winB.length-3][0].laimetojoDalyvio_ID)){
+            let allTables = await TableService.getAllTablesOfTournament(group.turnyro_ID);
+            for(let i=0; i<allTables.length;i++){
+                exit = false;
+                if(allTables[i].dabartinisLenkimoGrupesID===group.id){
+                    table_id=allTables[i].id
+                    exit = true;
+                    break;
+                }else if(allTables[i].lenkimo_id!==null){
+                    for(let j=0;j<allTables[i].lenkimo_id.length;j++){
+                        if(allTables[i].lenkimo_id[j]===group.id){
+                            table_id=allTables[i].id;
+                            exit=true;
+                            break;
+                        
+                        }
+                    }
+                }
+                if(exit) break;
             }
         }
         group.raundas=current_round;
@@ -395,37 +498,7 @@ class BracketService{
                 bracket.losB[i][j] =  bracket.losB[i][j].id
             }
         }
-        let table_id;
-        let exit=false;
-        if(current_round===bracket.winB.length || (bracket.winB.length>2 && bracket.winB[bracket.winB.length-2][0].laimetojoDalyvio_ID && !bracket.winB[bracket.winB.length-1][0].dalyvio_ID )){
-            let allTables = await TableService.getAllTablesOfTournament(group.turnyro_ID);
-            for(let i=0; i<allTables.length;i++){
-                exit = false;
-                if(allTables[i].dabartinisLenkimoGrupesID===group.id){
-                    table_id=allTables[i].id
-                    break;
-                }
-                if(allTables[i].lenkimo_id!==null){
-                    for(let j=0;j<allTables[i].lenkimo_id.length;j++){
-                        if(allTables[i].lenkimo_id[j]===group.id){
-                            table_id=allTables[i].id;
-                            exit=true;
-                            break;
-                        
-                        }  
-                        for(let j=0;j<allTables[i].lenkimo_id.length;j++){
-                            if(allTables[i].lenkimo_id[j]===group.id){
-                                table_id=allTables[i].id;
-                                exit=true;
-                                break;
-                            }
-                        }
-                        if(exit) break;
-                    }
-                }
-                if(exit) break;
-            }
-        }
+
 
         await group.save();
         await group.update({bracket: bracket});
@@ -436,8 +509,17 @@ class BracketService{
         return null;
         
 
-
-
+    }
+    static async progressMatch(matchID, force = null){
+        let match = await MatchService.getMatchById(matchID);
+        let allStates = ['CREATED','IN_PROCCESS', 'FINISHED'];
+        if(force === undefined || force === null){
+            match.status=allStates.at(allStates.indexOf(match.status)+1);
+        }else{
+            match.status = force;
+        }
+        await match.save();
+        
     }
     static async generateBracketObj(group){
         let bracketOfId = group.bracket;
@@ -506,16 +588,16 @@ class BracketService{
 }
 
 function calculateLosersRounds(nextPowerOfTwo) {
-    if (nextPowerOfTwo === 2) {
-        return 1; // Special case: 2 players mean 1 round in losers' bracket
-    }
-    return (Math.log2(nextPowerOfTwo) - 1) * 2;
+    return (Math.ceil(Math.log2(nextPowerOfTwo)) - 1) * 2;
 }
 function getMatchFromArray(groupsMatches, idOfMatch){
     return groupsMatches.find(match => match.id === idOfMatch);
 }
 
 function getPossibleLastLoserRound(max_bracket,current_round){
+    if(max_bracket<0){
+        max_bracket=0;
+    }
     return Math.min(max_bracket,current_round+Math.max(0,current_round-1));
 }
 export default BracketService;

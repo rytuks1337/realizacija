@@ -34,25 +34,21 @@ class TournamentController{
 
   static async startTournamnet (req, res){
     const {tournament_id} = req.params;
-    // try{
+    try{
       await RefereeService.distributeRefs(tournament_id);
       await BracketService.initBracketsForTournament(tournament_id);
-      //fill tables with match id
-      //Referee control the next in line match
-      //
-    // }catch(error){
-    //   if(error instanceof ExtraError){
-    //     return res.status(error.statusCode).json({message: error.message});
+      await TournamentService.startTournament(tournament_id);
+      
+
+    }catch(error){
+      if(error instanceof ExtraError){
+        return res.status(error.statusCode).json({message: error.message});
         
-    //   }
-    //   return res.status(500).json({message: error.message});
-    // }
+      }
+      return res.status(500).json({message: error.message});
+    }
 
     return res.status(200).json({message: "Succesfull"});
-    //check if valid tournament
-    //check for valid referees, players and groups.
-    //generate tables for each of the groups
-    //Change the state of the tournament to "Started"
 
   };
 
