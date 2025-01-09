@@ -175,6 +175,15 @@ class RoleService {
     return await Role.findByPk(userId);
   }
 
+  static async getAllRolesByUserId(userId) {
+
+    return await Role.findAll({
+      where : {
+        "vartotojo_ID" : userId,
+      }
+    });
+  }
+
   static async getAllTournamentReferees(tournament_id){
     return await Role.findAll({
       where : {

@@ -88,21 +88,51 @@ class TournamentController{
   static async get20Tournaments (req, res) {
 
     const {page} = req.params;
+    const {search, isMine, hasPrivilages, participant} = req.query;
+    let options = {};
+
+    if(search!==undefined){
+      options['search']=search;
+    }
+    if(isMine!==undefined){
+      options['isMine']=isMine === 'true';
+    }
+    if(participant!==undefined){
+      options['hasPrivilages']=hasPrivilages === 'true';
+    }
+    if(participant!==undefined){
+      options['participant']=participant === 'true';
+    }
+
+    let userID=null;
+    if(req.user!==null && req.user!==undefined){
+      userID=req.user;
+    }
+
     try {
       if (page === undefined){
         const result = await TournamentService.get20Tournaments(1,20);
         if(result.length === 0){
           return res.status(404).json({message: "No results were found"});
-          
         }
-        res.status(200).json({result});
+        return res.status(200).json({result});
       }else {
-        const result = await TournamentService.get20Tournaments(page,20);
-        if(result.length === 0){
-          return res.status(404).json({message: "No results were found"});
-          
+        if(options === undefined || Object.keys(options).length===0){
+          console.log("A");
+          const result = await TournamentService.get20Tournaments(page,20);
+          console.log("A");
+          if(result.length === 0){
+            return res.status(404).json({message: "No results were found"});
+          }
+          return res.status(200).json({result});
+        }else{
+          const result = await TournamentService.get20Tournaments(page,20,options,userID);
+          if(result.length === 0){
+            return res.status(404).json({message: "No results were found"});
+          }
+          return res.status(200).json({result});
         }
-        res.status(200).json({result});
+
       }
     } catch (error) {
       return res.status(500).json({error: error.message});

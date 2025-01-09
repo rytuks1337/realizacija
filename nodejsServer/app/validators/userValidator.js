@@ -22,7 +22,7 @@ const registerValidation = [
     .isLength({max: 50}).withMessage("Exceeded maximum number of characters"),
   body('slaptazodis')
     .notEmpty().withMessage("Valid password is required")
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/).withMessage('Password must be at least 8 characters long, have 1 uppercase, 1 lowercase and 1 special character'),
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*\W).{12,}$/).withMessage('Slaptažodis privalo būti bent 12 simbolių ilgumo, turėti po vieną didžiąją, mažąją raides, bent vieną skaičių ir specialųjį simbolį'),
   body('lytis')
     .notEmpty().withMessage("Valid gender is required")
     .custom((value) => {

@@ -1,4 +1,4 @@
-import {param, body } from 'express-validator';
+import {param, body, query } from 'express-validator';
 import { validationCheck } from '../utils/validatorHelper.js';
 
 const createTournamentValidation = [
@@ -39,4 +39,20 @@ const pageParamValidation = [
 
 ];
 
-export {createTournamentValidation, pageParamValidation}
+const searchValidation = [
+    query('search')
+        .optional()
+        .isString().withMessage("Must be a string"),
+    query('isMine')
+        .optional()
+        .isBoolean().withMessage("Must be either true or false"),
+    query('hasPermisions')
+        .optional()
+        .isBoolean().withMessage("Must be either true or false"),
+    query('participant')
+        .optional()
+        .isBoolean().withMessage("Must be either true or false"),
+    validationCheck
+];
+
+export {createTournamentValidation, pageParamValidation, searchValidation}

@@ -38,7 +38,8 @@ class RoleController {
   
   static async getRoleByUserId(req, res) {
     try {
-      const role = await RoleService.getRoleByUserId(req.params.id);
+      const { tournament_id } = req.params;
+      const role = await RoleService.getRolesByUserId(tournament_id, req.user);
       if (!role) {
         return res.status(404).json({ error: 'Role not found' });
       }

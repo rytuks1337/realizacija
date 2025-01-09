@@ -2,8 +2,8 @@ import express from 'express';
 
 import TournamentController from '../controllers/tournamentController.js';
 import RoleController from '../controllers/roleController.js';
-import { createTournamentValidation, pageParamValidation } from '../validators/tournamentValidator.js';
-import { authenticateToken, authorizeRole } from '../middleware/authMiddleware.js';
+import { createTournamentValidation, pageParamValidation, searchValidation } from '../validators/tournamentValidator.js';
+import { authenticateToken, authorizeRole, checkToken } from '../middleware/authMiddleware.js';
 import { playerValidation, playerValidationEdit } from '../validators/playerValidator.js';
 import MatchController from '../controllers/matchController.js';
 import {matchUpdateValidation,foulAddValidation} from '../validators/matchValidator.js';
@@ -12,10 +12,8 @@ import multer from 'multer';
 const router = express.Router();
 const upload = multer({storage});
 
-router.get('/', TournamentController.get20Tournaments);
 
-router.get('/tournaments', TournamentController.get20Tournaments); // Gauti pradinę informaciją apie pirmus 20 turnyrų.
-router.get('/tournaments/:page', pageParamValidation, TournamentController.get20Tournaments); // Gauti pradinę informaciją apie 20 turnyrų pagal puslapį.
+router.get('/tournaments/:page', checkToken, pageParamValidation, searchValidation, TournamentController.get20Tournaments); // Gauti pradinę informaciją apie 20 turnyrų pagal puslapį ir nustatymus
 router.get('/:tournament_id', TournamentController.getTournament); // Gauti informacija apie vieną pasirinktą turnyrą.
 
 router.post('/create', authenticateToken, upload.single('file'), processFile, createTournamentValidation, TournamentController.createTournament);// Sukurti turnyrą.
@@ -31,7 +29,7 @@ router.get('/:tournament_id/tables', TournamentController.getTournamentQueueTabl
 
 // Pasirinkto turnyro rolių CRUD
 router.post('/:tournament_id/role', authenticateToken, authorizeRole(["Owner", "Organizer"]), playerValidation, RoleController.createRole);
-router.get('/:tournament_id/role/:id', RoleController.getRoleByUserId);
+router.get('/:tournament_id/role',authenticateToken, RoleController.getRoleByUserId);
 router.put('/:tournament_id/role/:id', authenticateToken, authorizeRole(["Owner", "Organizer"]),playerValidationEdit, RoleController.updateRole);
 router.delete('/:tournament_id/role/:id', authenticateToken, authorizeRole(["Owner", "Organizer"]),  RoleController.deleteRole);
 

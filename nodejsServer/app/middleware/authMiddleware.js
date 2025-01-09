@@ -7,7 +7,7 @@ dotenv.config();
 
 const authenticateToken = (req, res, next) => {
     const token = req.headers['authorization'];
-    if (token == null) return res.sendStatus(401);
+    if (token === null && token === undefined) return res.sendStatus(401);
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
         if (err) return res.sendStatus(401);
@@ -21,6 +21,28 @@ const authenticateToken = (req, res, next) => {
         next();
     });
     
+};
+
+const checkToken = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (token === null || token===undefined) {
+        next();
+    }else{
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+            if (err) next();
+            try {
+                if(user===null || user===undefined){
+                    next();
+                }
+                req.user = (await UuidService.getUserByUUID(user.id)).id;
+            } catch (error) {
+                next();
+            }
+            
+            next();
+        });
+    }
+
 };
 
 const testToken = (req, res, next) => {
@@ -85,4 +107,4 @@ const authorizeRole = (roleArray) => {
     };
 };
 
-export {authenticateToken, authorizeRole, generateAccessToken, refreshToken, testToken};
+export {authenticateToken, authorizeRole, generateAccessToken, refreshToken, testToken,checkToken};
